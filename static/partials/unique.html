@@ -1,0 +1,165 @@
+<div id='uniqueProfiles' ng-controller='UniqueController' class='col-xs-11'>
+        <ul class="nav nav-tabs" id='uniqueProfilesTab'>
+            <li class="active"><a href="#myProfile" data-toggle="tab">My Profile</a></li>
+            <li><a href="#otherProfile" data-toggle="tab">Other Profile</a></li>
+        </ul>
+
+    <div class="tab-content well">
+        <div class="tab-pane active" id="myProfile">
+            <div class='row'>
+                <div class='col-xs-5' style='border-right: 1px solid #ccc'>
+                    <form role="form" class="form-horizontal" id='myProfileForm' name='myProfileForm'>
+                    	<p ng-show='myProfileFormSuccessMsg' id='myProfileFormSuccessMsg'></p>
+                        <div class="form-group">
+                            <label for="" class="col-sm-5 control-label">Steps</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control" id="stepCount"
+                                       name='stepCount' placeholder="step" min='0' ng-model="myProfileForm.stepValue"
+                                       required>
+                                <span class="error" ng-show="myProfileForm.stepCount.$error.number">
+                                        Not valid number!</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-5 control-label"
+                                   style='margin-top: -10px'>Include in top 50</label>
+                            <div class="col-sm-3">
+                                <input type="checkbox" id="includeTop50" name='includeTop50'
+                                       style='width: 30px;height: 20px'ng-model='myProfileForm.includeTop50'/>
+                                <input type="textbox" style='display: none' name="myProfile" value='true' />
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="myProfileForm.stepValue > '3'">
+                            <label for="inputEmail3" class="col-sm-5 control-label"
+                                   style='margin-top: -10px'>Email</label>
+                            <div class="col-sm-6">
+                                <input type="email"
+                                       class="form-control" placeholder="email" name="email"
+                                       value='' ng-model="myProfileForm.emailField" required/>
+                                <span class="error" ng-show="myProfileForm.email.$error.email">
+                                        Not valid email!</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                            	<p>If more than 3 steps, please provide email address.</p>
+                                <button type="submit" class="btn btn-default"
+                                        ng-click="submitMyProfile('#myProfileForm')">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class='col-xs-5 tableData' ng-show='showTableDataMyProfile'>
+                	<!--<b><label>Profile Name - </label>
+                    <label>{{myProfileData.name}}</label></b>-->
+                    <p font-weight="bold">Profile Name - {{myProfileData.name}}</p>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Profiles</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat='i in myProfileData.steps'>
+                                <td>{{i.step}}</td>
+                                <td>{{i.profiles}}</td>
+                                <td>{{i.total}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="otherProfile">
+            <div class='row'>
+                <div class='col-xs-6' style='border-right: 1px solid #ccc'>
+                    <form role="form" class="form-horizontal" id='otherProfileForm' name='otherProfileForm'>
+                    	<div ng-show='otherProfileFormSuccessMsg' id='otherProfileFormSuccessMsg'>Job Submitted</div>
+                        <!--<div class="form-group">
+                            <label for="" class="col-sm-5 control-label">Profile Id:</label>
+                            <div class="col-sm-5" style='padding-top: 10px; font-size: 15px;'>
+                                {{otherProfileData.profileId}}
+                            </div>
+                            <input type="number" class="form-control" id="otherId"
+                                       name='otherId' placeholder="id" min='0'
+                                       ng-model="otherProfileForm.otherId"
+                                       required>
+                        </div>-->
+                        <div class="form-group">
+        					<label for="" class="col-sm-5 control-label">Profile Id:</label>
+        					<div class="col-sm-7" style='padding-top: 10px; font-size: 15px;'>
+            					<input type="number" class="form-control ng-pristine ng-valid-required ng-invalid ng-invalid-number
+            						ng-valid-min col-sm-7 padding-right:0px" id="otherId" name="otherId" placeholder="id" min="0"
+            						ng-model="otherProfileForm.otherId" required="">
+        					</div>
+						</div>
+                        <div class="form-group">
+                            <label for="" class="col-sm-5 control-label">Steps</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control" id="stepCount"
+                                       name='stepCount' placeholder="step" min='0'
+                                       ng-model="otherProfileForm.stepValue"
+                                       required>
+                                <span class="error" ng-show="otherProfileForm.stepCount.$error.number">
+                                        Not valid number!</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-5 control-label"
+                                   style='margin-top: -10px'>Include in top 50</label>
+                            <div class="col-sm-3">
+                                <input type="checkbox" id="includeTop50" name='includeTop50'
+                                       style='width: 30px;height: 20px'/>
+                                <input type="textbox" style='display: none' name="myProfile" value='false' />
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="otherProfileForm.stepValue > '3'">
+                            <label for="inputEmail3" class="col-sm-5 control-label"
+                                   style='margin-top: -10px'>Email</label>
+                            <div class="col-sm-6">
+                                <input type="email"
+                                       class="form-control" placeholder="email" name="email"
+                                       value='' ng-model="otherProfileForm.emailField" required/>
+                                <span class="error" ng-show="otherProfileForm.email.$error.email">
+                                        Not valid email!</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                            	<p>If more than 3 steps, please provide email address.</p>
+                                <button type="submit" class="btn btn-default"
+                                        ng-click="submitMyProfile('#otherProfileForm')">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class='col-xs-5 tableData' ng-show='showTableDataOtherProfile'>
+                	<!--<b><label>Profile Name - </label>
+                    <label>{{otherProfileData.name}}</label></b>-->
+                    <p style="font-weight:bold">Profile Name - {{otherProfileData.name}}</p>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Profiles</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat='i in otherProfileData.steps'>
+                                <td>{{i.step}}</td>
+                                <td>{{i.profiles}}</td>
+                                <td>{{i.total}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>

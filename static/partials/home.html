@@ -1,0 +1,46 @@
+<div ng-controller="HomeController">
+      <div class='col-xs-9'>
+                    <div class='row'>
+                        <div class='col-xs-4' style='margin-left: 30%'>
+                            <div class='panel panel-success'>
+                                <div class="panel-heading">
+                                    <h3 class="panel-title" style='padding:0'>{{profileData.name}}</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <p class='zeroMargin' ng-show='profileData.gender == "male"'>
+                                        Gender: <span class='male'>{{profileData.gender}}</span></p>
+                                    <p class='zeroMargin' ng-show='profileData.gender == "female"'>
+                                        Gender: <span class='female'>{{profileData.gender}}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row relations' style='clear: both;float:left;margin-top:20px'>
+                            <div class='col-xs-4' ng-repeat="v in profileData.relations">
+                                <div class='panel panel-primary'>
+                                    <div class="panel-heading">
+                                        <a href='javascript:void(0)' class="panel-title"
+                                           ng-click="getProfile(v.id, v.name)">{{v.name}}</a>
+                                    </div>
+                                    <div class="panel-body">
+                                        <p ng-show='v.gender == "male"'>
+                                        Gender:<span class='male'> {{v.gender}}</span></p>
+                                        <p ng-show='v.gender == "female"'>
+                                        Gender: <span class='female'>{{v.gender}}</span></p>
+                                        <!--<p>Relation: {{v.relationship}}</p>-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        </div>
+        <div class='col-xs-3'>
+                    <div class='well1 rsvpContainer' style='overflow: hidden' ng-show='recentProfiles.length !== 0'>
+                        <h5 class='rsvp'>Recent Visited Profiles</h5>
+                        <a ng-repeat='p in recentProfiles' href='javascript:void(0)'
+                           class="label label-info recentProfile"
+                           ng-click="getProfile(p.id, p.name)">{{p.name}}</a>
+                    </div>
+                    <div class='well' style='overflow: hidden' ng-show='recentProfiles.length === 0'>
+                        <a href='javascript:void(0)' class='zeroProfiles'>No Recent Visited Profiles</a>
+                    </div>
+        </div>
