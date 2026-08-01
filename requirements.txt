@@ -1,0 +1,17 @@
+Flask==3.0.3
+Werkzeug==3.0.4
+Jinja2==3.1.4
+itsdangerous==2.2.0
+click==8.1.7
+MarkupSafe==2.1.5
+Flask-Session==0.8.0
+cachelib==0.13.0
+peewee==3.17.6
+PyMySQL==1.1.1
+redis==5.0.8
+rq==1.16.2
+rq-dashboard==0.6.7
+requests==2.32.3
+gunicorn==22.0.0
+python-dateutil==2.9.0.post0
+pytz==2024.1

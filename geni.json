@@ -1,0 +1,171 @@
+{
+  "focus": {
+    "claimed": true,
+    "creator": "https://www.geni.com/api/user-12501013",
+    "first_name": "Api",
+    "gender": "male",
+    "guid": "6000000024491145741",
+    "id": "profile-34655101643",
+    "is_alive": true,
+    "last_name": "Tester",
+    "name": "Api Tester",
+    "public": false,
+    "url": "https://www.geni.com/api/profile-34655101643"
+  },
+  "nodes": {
+    "profile-34655101643": {
+      "edges": {
+        "union-55425935": {
+          "rel": "child"
+        },
+        "union-55425959": {
+          "rel": "partner"
+        }
+      },
+      "first_name": "Api",
+      "gender": "male",
+      "id": "profile-34655101643",
+      "is_alive": true,
+      "last_name": "Tester",
+      "public": false,
+      "url": "https://www.geni.com/api/profile-34655101643"
+    },
+    "profile-34655101661": {
+      "edges": {
+        "union-55425935": {
+          "rel": "partner"
+        }
+      },
+      "first_name": "Father",
+      "gender": "male",
+      "id": "profile-34655101661",
+      "is_alive": true,
+      "last_name": "Tester",
+      "public": false,
+      "url": "https://www.geni.com/api/profile-34655101661"
+    },
+    "profile-34655101675": {
+      "edges": {
+        "union-55425935": {
+          "rel": "partner"
+        }
+      },
+      "first_name": "Mother",
+      "gender": "female",
+      "id": "profile-34655101675",
+      "is_alive": true,
+      "last_name": "Tester",
+      "public": false,
+      "url": "https://www.geni.com/api/profile-34655101675"
+    },
+    "profile-34655101723": {
+      "edges": {
+        "union-55425959": {
+          "rel": "child"
+        }
+      },
+      "first_name": "Daughter",
+      "gender": "female",
+      "id": "profile-34655101723",
+      "is_alive": true,
+      "last_name": "Tester",
+      "public": false,
+      "url": "https://www.geni.com/api/profile-34655101723"
+    },
+    "profile-34655101724": {
+      "edges": {
+        "union-55425959": {
+          "rel": "partner"
+        }
+      },
+      "first_name": "Wife",
+      "gender": "female",
+      "id": "profile-34655101724",
+      "is_alive": true,
+      "last_name": "Tester",
+      "public": false,
+      "url": "https://www.geni.com/api/profile-34655101724"
+    },
+    "profile-34655101725": {
+      "edges": {
+        "union-55425959": {
+          "rel": "child"
+        }
+      },
+      "first_name": "Son",
+      "gender": "male",
+      "id": "profile-34655101725",
+      "is_alive": true,
+      "last_name": "Tester",
+      "public": false,
+      "url": "https://www.geni.com/api/profile-34655101725"
+    },
+    "profile-34655101726": {
+      "edges": {
+        "union-55425935": {
+          "rel": "child"
+        }
+      },
+      "first_name": "Brother",
+      "gender": "male",
+      "id": "profile-34655101726",
+      "is_alive": true,
+      "last_name": "Tester",
+      "public": false,
+      "url": "https://www.geni.com/api/profile-34655101726"
+    },
+    "profile-34655101727": {
+      "edges": {
+        "union-55425935": {
+          "rel": "child"
+        }
+      },
+      "first_name": "Sister",
+      "gender": "female",
+      "id": "profile-34655101727",
+      "is_alive": true,
+      "last_name": "Tester",
+      "public": false,
+      "url": "https://www.geni.com/api/profile-34655101727"
+    },
+    "union-55425935": {
+      "edges": {
+        "profile-34655101643": {
+          "rel": "child"
+        },
+        "profile-34655101661": {
+          "rel": "partner"
+        },
+        "profile-34655101675": {
+          "rel": "partner"
+        },
+        "profile-34655101726": {
+          "rel": "child"
+        },
+        "profile-34655101727": {
+          "rel": "child"
+        }
+      },
+      "status": "spouse",
+      "url": "https://www.geni.com/api/union-55425935"
+    },
+    "union-55425959": {
+      "edges": {
+        "profile-34655101643": {
+          "rel": "partner"
+        },
+        "profile-34655101723": {
+          "rel": "child"
+        },
+        "profile-34655101724": {
+          "rel": "partner"
+        },
+        "profile-34655101725": {
+          "rel": "child"
+        }
+      },
+      "status": "spouse",
+      "url": "https://www.geni.com/api/union-55425959"
+    }
+  }
+}
