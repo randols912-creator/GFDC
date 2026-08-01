@@ -422,6 +422,37 @@ def top():
         LOGGER.exception('top error:')
     return jsonify(data)
 
+@APP.route('/record_count', methods=['POST'])
+def record_count():
+    """Accept a finished density count pushed by the Geni Top 10 nightly
+    crawler (geni_top10.py --density on schoenberg.com) and store it in
+    geni_profiles, so the Top 50 page stays current without anyone running
+    the calculator by hand. Auth: the X-Push-Key header must match the
+    GENI_PUSH_KEY config var; if that var is unset, the route is disabled."""
+    push_key = os.getenv('GENI_PUSH_KEY')
+    if not push_key or request.headers.get('X-Push-Key') != push_key:
+        return 'forbidden', 403
+    try:
+        guid = request.form['guid']
+        name = request.form.get('name', '')
+        link = request.form.get('link', '')
+        steps = json.loads(request.form['steps'])
+        if not guid.isdigit() or not isinstance(steps, list):
+            return 'bad request', 400
+        saved = 0
+        for entry in steps:
+            step = int(entry['step'])
+            total = int(entry['total'])
+            save_geni_profile({'step': step, 'total': total},
+                              name, guid, link)
+            saved += 1
+        LOGGER.info('record_count saved %d step rows for %s (%s)',
+                    saved, name, guid)
+        return jsonify({'saved': saved})
+    except Exception:
+        LOGGER.exception('record_count error:')
+        return 'error', 500
+
 @APP.route('/logout')
 def logout():
     """Handle navigation to logout of application"""
