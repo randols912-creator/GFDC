@@ -159,6 +159,40 @@ def get_profile_obj(profile_response):
     LOGGER.debug("get_profile_obj details - profileName=%s, guid=%s, relations count=%d", data['profileName'], data['guid'], len(relations))
     return data
 
+SEARCH_URL = 'https://www.geni.com/api/profile/search'
+
+def search_profiles(access_token, names, page='1'):
+    """Search Geni profiles by name (GET /api/profile/search?names=...).
+    Returns {'results': [{'guid','name','link'}], 'page': n, 'has_next': bool}."""
+    LOGGER.debug("search_profiles names=%s page=%s", names, page)
+    payload = {'access_token': access_token, 'names': names, 'page': page}
+    resp = requests.get(SEARCH_URL, params=payload)
+    data = {'results': [], 'page': 1, 'has_next': False}
+    try:
+        contents = json.loads(resp.text)
+    except ValueError:
+        LOGGER.error("search_profiles bad JSON: %s", resp.text[:200])
+        return data
+    if isinstance(contents, dict) and contents.get('error'):
+        LOGGER.error("search_profiles API error: %s", contents['error'])
+        return data
+    data['page'] = contents.get('page', 1)
+    data['has_next'] = bool(contents.get('next_page'))
+    for prof in contents.get('results', []):
+        guid = str(prof.get('guid', '') or '')
+        if not guid:
+            # fall back: extract digits from the api id (e.g. 'profile-123')
+            pid = str(prof.get('id', '') or '')
+            guid = ''.join(ch for ch in pid if ch.isdigit())
+        if not guid:
+            continue
+        data['results'].append({
+            'guid': guid,
+            'name': prof.get('name', '(unnamed profile)'),
+            'link': PUBLIC_URL.replace('{guid}', guid)
+        })
+    return data
+
 def invalidate_token(access_token):
     """Invalidate the given access token via the API for logging out"""
     LOGGER.debug("invalidateToken")
