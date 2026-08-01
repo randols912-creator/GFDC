@@ -255,7 +255,10 @@ def create_background_job(params):
             data['guid'] = local_session['guid']
             data['profileName'] = local_session['stepProfileName']
             data['remainingSteps'] = str(int(step_count) - int(step) - 1)
-            sendEmail(params['email'], data)
+            try:
+                sendEmail(params['email'], data)
+            except Exception as mail_err:
+                LOGGER.error('email send failed (job continues): %s', mail_err)
     else:
         for step in range(0, int(step_count)):
             step_data = get_step_profiles_thread(params['access_token'], params['refresh_token'], step, visited_set, params['other_id'], local_session)
@@ -275,7 +278,10 @@ def create_background_job(params):
             data['guid'] = local_session['guid']
             data['profileName'] = local_session['stepProfileName']
             data['remainingSteps'] = str(int(step_count) - int(step) - 1)
-            sendEmail(params['email'], data)
+            try:
+                sendEmail(params['email'], data)
+            except Exception as mail_err:
+                LOGGER.error('email send failed (job continues): %s', mail_err)
 
     data['steps'] = steps
     data['geniLink'] = local_session['stepUserLink']
