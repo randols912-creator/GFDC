@@ -194,7 +194,6 @@ function gfdcSendContact(form){
             btn.disabled = false;
             if(res.ok && res.j.sent){
                 status.style.color = '#3c763d'; status.textContent = 'Message sent - thank you!';
-                form.reset();
             } else {
                 status.style.color = '#a94442';
                 status.textContent = (res.j && res.j.error) || 'Could not send - please try again.';
