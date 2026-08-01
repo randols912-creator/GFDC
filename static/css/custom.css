@@ -64,3 +64,26 @@ footer hr{border-top: 1px solid #2f4154}
 #Top50Controller ul li.btn.active{background-color: #5dade2 !important;border-color: #5dade2 !important}
 #Top50Controller table td{font-size: 15px;}
 
+/* --- title bar --- */
+.gfdc-titlebar{display: flex; align-items: baseline; justify-content: space-between;
+    flex-wrap: wrap; margin: 12px 0 14px 0; padding-bottom: 6px; border-bottom: 1px solid #ddd;}
+.gfdc-titlebar h1{font-size: 30px; margin: 0; white-space: nowrap; border: none;}
+.gfdc-nav{list-style: none; margin: 0; padding: 0;}
+.gfdc-nav li{display: inline-block; margin-left: 20px;}
+.gfdc-nav li a{font-size: 15px; font-weight: bold; text-decoration: none;}
+
+/* --- calculator UX --- */
+.gfdc-intro{font-size: 13px; background-color: #f4f9ff; border-color: #cfe3f5; margin-bottom: 12px;}
+#uniqueProfiles .help-block{font-size: 11px !important; color: #999 !important; margin: 2px 0 0 0; font-weight: normal;}
+.gfdc-check{font-weight: normal !important; font-size: 13px !important; padding-top: 7px; cursor: pointer;}
+.gfdc-check input{margin-right: 6px;}
+.search-results{border: 1px solid #ddd; border-radius: 4px; max-height: 240px; overflow-y: auto; margin: 0 0 6px 0; background: #fff;}
+.search-results li{padding: 5px 10px; border-bottom: 1px solid #eee; font-size: 13px; line-height: 22px;}
+.search-results li:last-child{border-bottom: none;}
+.search-results li:hover{background-color: #f4f9ff;}
+.search-results li.selected{background-color: #dff0d8;}
+.search-results .sr-select{margin-right: 8px; min-width: 72px;}
+.search-results .sr-name{cursor: pointer;}
+.search-results .sr-link{float: right; font-size: 11px; margin-top: 2px;}
+#uniqueProfiles .alert{margin: 8px 0; font-size: 13px;}
+
