@@ -26,37 +26,40 @@
                     <form role="form" class="form-horizontal" name='myForm' novalidate>
 
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Steps</label>
-                            <div class="col-sm-6">
+                            <label class="col-sm-3 control-label">Steps</label>
+                            <div class="col-sm-4">
                                 <input type="number" class="form-control" min='1' max='10'
                                        placeholder="1&ndash;10" ng-model="my.stepValue"
                                        ng-disabled="myBusy">
-                                <span class="help-block">How far out to count.
-                                    1&nbsp;=&nbsp;immediate family only. 4+ runs in the background.</span>
+                            </div>
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <span class="help-block">1 = immediate family &middot; 4+ steps run in the background</span>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Add to rankings</label>
-                            <div class="col-sm-6">
-                                <input type="checkbox" style='width:22px;height:18px'
-                                       ng-model='my.includeTop50' ng-disabled="myBusy"/>
-                                <span class="help-block" style="display:inline; vertical-align:top;">
-                                    Save this result to the public Top&nbsp;50 lists.</span>
+                            <label class="col-sm-3 control-label">Top 50</label>
+                            <div class="col-sm-9">
+                                <label class="gfdc-check">
+                                    <input type="checkbox" ng-model='my.includeTop50' ng-disabled="myBusy"/>
+                                    Add this result to the public rankings
+                                </label>
                             </div>
                         </div>
 
                         <div class="form-group" ng-show="my.stepValue >= 4">
-                            <label class="col-sm-4 control-label">Email</label>
-                            <div class="col-sm-6">
+                            <label class="col-sm-3 control-label">Email</label>
+                            <div class="col-sm-7">
                                 <input type="email" class="form-control" placeholder="you@example.com"
                                        ng-model="my.email" ng-disabled="myBusy"/>
-                                <span class="help-block">Results are emailed after each step.</span>
+                            </div>
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <span class="help-block">Results are emailed after each step</span>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="col-sm-offset-4 col-sm-8">
+                            <div class="col-sm-offset-3 col-sm-9">
                                 <button type="button" class="btn btn-primary"
                                         ng-click="submitMy()" ng-disabled="myBusy">
                                     <span ng-hide="myBusy">Calculate</span>
@@ -95,8 +98,8 @@
                     <form role="form" class="form-horizontal" name='otherForm' novalidate>
 
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Find a profile</label>
-                            <div class="col-sm-8">
+                            <label class="col-sm-3 control-label">Find</label>
+                            <div class="col-sm-9">
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Search by name, e.g. Beer-Hofmann"
                                            ng-model="search.query" ng-disabled="search.busy"
@@ -109,26 +112,29 @@
                                         </button>
                                     </span>
                                 </div>
-                                <span class="help-block">Search Geni by name and click a result below
-                                    &mdash; or paste a profile URL / ID in the box further down.</span>
+                                <span class="help-block">Search Geni by name, then click a result to select it</span>
                             </div>
                         </div>
 
                         <div class="form-group" ng-show="search.error">
-                            <div class="col-sm-offset-4 col-sm-8">
+                            <div class="col-sm-offset-3 col-sm-9">
                                 <div class="alert alert-danger" style="padding:8px;">{{search.error}}</div>
                             </div>
                         </div>
 
                         <div class="form-group" ng-show="search.results.length">
-                            <div class="col-sm-offset-4 col-sm-8">
+                            <div class="col-sm-offset-3 col-sm-9">
                                 <ul class="search-results list-unstyled">
                                     <li ng-repeat="p in search.results"
-                                        ng-class="{'selected': other.otherId == p.guid}"
-                                        ng-click="selectProfile(p)">
-                                        <span class="sr-name">{{p.name}}</span>
-                                        <a href="{{p.link}}" target="_blank" class="sr-link"
-                                           ng-click="$event.stopPropagation()">view on Geni</a>
+                                        ng-class="{'selected': other.otherId == p.guid}">
+                                        <button type="button" class="btn btn-xs sr-select"
+                                                ng-class="other.otherId == p.guid ? 'btn-success' : 'btn-primary'"
+                                                ng-click="selectProfile(p)">
+                                            <span ng-hide="other.otherId == p.guid">Select</span>
+                                            <span ng-show="other.otherId == p.guid">&#10003; Selected</span>
+                                        </button>
+                                        <span class="sr-name" ng-click="selectProfile(p)">{{p.name}}</span>
+                                        <a href="{{p.link}}" target="_blank" class="sr-link">view on Geni</a>
                                     </li>
                                 </ul>
                                 <button type="button" class="btn btn-xs btn-default" ng-show="search.hasNext"
@@ -138,54 +144,58 @@
                         </div>
 
                         <div class="form-group" ng-show="search.searched && !search.results.length && !search.busy && !search.error">
-                            <div class="col-sm-offset-4 col-sm-8">
-                                <span class="help-block">No profiles found &mdash; try another spelling.</span>
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <span class="help-block">No profiles found &mdash; try another spelling</span>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Profile ID</label>
-                            <div class="col-sm-8">
+                            <label class="col-sm-3 control-label">Profile ID</label>
+                            <div class="col-sm-9">
                                 <input type="text" class="form-control" placeholder="e.g. 6000000004236083624"
                                        ng-model="other.otherId" ng-change="idTyped()" ng-disabled="otherBusy"/>
-                                <span class="help-block" ng-hide="other.selectedName">The number at the end of a
-                                    geni.com profile URL. Pasting the whole URL works too.</span>
+                                <span class="help-block" ng-hide="other.selectedName">Filled by the search above &mdash;
+                                    or paste a geni.com profile URL or ID</span>
                                 <span class="help-block" ng-show="other.selectedName" style="color:#3c763d;">
                                     Selected: <strong>{{other.selectedName}}</strong></span>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Steps</label>
-                            <div class="col-sm-6">
+                            <label class="col-sm-3 control-label">Steps</label>
+                            <div class="col-sm-4">
                                 <input type="number" class="form-control" min='1' max='10'
                                        placeholder="1&ndash;10" ng-model="other.stepValue"
                                        ng-disabled="otherBusy">
-                                <span class="help-block">1&nbsp;=&nbsp;immediate family only. 4+ runs in the background.</span>
+                            </div>
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <span class="help-block">1 = immediate family &middot; 4+ steps run in the background</span>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Add to rankings</label>
-                            <div class="col-sm-6">
-                                <input type="checkbox" style='width:22px;height:18px'
-                                       ng-model='other.includeTop50' ng-disabled="otherBusy"/>
-                                <span class="help-block" style="display:inline; vertical-align:top;">
-                                    Save this result to the public Top&nbsp;50 lists.</span>
+                            <label class="col-sm-3 control-label">Top 50</label>
+                            <div class="col-sm-9">
+                                <label class="gfdc-check">
+                                    <input type="checkbox" ng-model='other.includeTop50' ng-disabled="otherBusy"/>
+                                    Add this result to the public rankings
+                                </label>
                             </div>
                         </div>
 
                         <div class="form-group" ng-show="other.stepValue >= 4">
-                            <label class="col-sm-4 control-label">Email</label>
-                            <div class="col-sm-6">
+                            <label class="col-sm-3 control-label">Email</label>
+                            <div class="col-sm-7">
                                 <input type="email" class="form-control" placeholder="you@example.com"
                                        ng-model="other.email" ng-disabled="otherBusy"/>
-                                <span class="help-block">Results are emailed after each step.</span>
+                            </div>
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <span class="help-block">Results are emailed after each step</span>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="col-sm-offset-4 col-sm-8">
+                            <div class="col-sm-offset-3 col-sm-9">
                                 <button type="button" class="btn btn-primary"
                                         ng-click="submitOther()" ng-disabled="otherBusy">
                                     <span ng-hide="otherBusy">Calculate</span>
