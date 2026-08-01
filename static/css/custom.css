@@ -74,9 +74,12 @@ footer hr{border-top: 1px solid #2f4154}
 
 /* --- calculator UX --- */
 .gfdc-intro{font-size: 13px; background-color: #f4f9ff; border-color: #cfe3f5; margin-bottom: 12px;}
-#uniqueProfiles .help-block{font-size: 11px !important; color: #999 !important; margin: 2px 0 0 0; font-weight: normal;}
-.gfdc-check{font-weight: normal !important; font-size: 13px !important; padding-top: 7px; cursor: pointer;}
-.gfdc-check input{margin-right: 6px;}
+#uniqueProfiles .help-block{font-size: 12px !important; color: #777 !important;
+    margin: 2px 0 0 0; font-weight: normal; line-height: 1.5 !important;}
+.gfdc-steps{width: 90px !important;}
+.gfdc-check{font-weight: normal !important; font-size: 12px !important; color: #777 !important;
+    line-height: 1.5 !important; padding-top: 8px; margin-bottom: 0; display: block; cursor: pointer;}
+.gfdc-check input{width: 15px; height: 15px; margin: 0 6px 0 0; vertical-align: -3px;}
 .search-results{border: 1px solid #ddd; border-radius: 4px; max-height: 240px; overflow-y: auto; margin: 0 0 6px 0; background: #fff;}
 .search-results li{padding: 5px 10px; border-bottom: 1px solid #eee; font-size: 13px; line-height: 22px;}
 .search-results li:last-child{border-bottom: none;}
