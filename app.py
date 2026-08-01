@@ -69,8 +69,12 @@ def home():
     LOGGER.debug("home")
     code = request.args.get('code')
     token_response = get_new_token(code)
-    set_tokens(token_response)
-    print('home just saved into session access token: %s', session['access_token'])
+    try:
+        set_tokens(token_response)
+    except (KeyError, ValueError):
+        # expired or reused OAuth code (stale tab, back button) - just log in again
+        LOGGER.warning('home: invalid/expired OAuth code, redirecting to login')
+        return redirect(url_for('login'))
     LOGGER.info('home just saved into session access token: %s', session['access_token'])
     session['current_step'] = 0
     return send_file('templates/index.html')
