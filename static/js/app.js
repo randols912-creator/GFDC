@@ -67,96 +67,132 @@ function HomeController($scope,$rootScope, $http){
 }
 
 var UniqueController = function($scope,$rootScope, $http){
-    var httpPromise = $http;
-    $('#uniqueProfilesTab a[href="#profile"]').tab('show');
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     $scope.showTableDataMyProfile = false;
     $scope.showTableDataOtherProfile = false;
-    $scope.submitMyProfile = function(formId){
-        var getFormData = $(formId).serialize();
-        $rootScope.formId = formId;
-        var submiProfileAPI = '/getUniqueCount?'+getFormData;
-        if($rootScope.formId === '#myProfileForm'){
-        	if($scope.myProfileForm.stepValue > 10){
-        		alert('Please enter steps between 1 to 10.');
-        		$scope.myProfileForm.stepValue = '';
-        		$scope.myProfileForm.emailField = '';
-        		return false;
-        	}
-           if($scope.myProfileForm.stepValue < 4){
-                if($scope.myProfileForm.stepValue !== ''){
-                    $scope.loading = true;
-                    $('.loadingMask').show();
-                    callServerGETAPI(httpPromise, submiProfileAPI, showTableData);
-                }
-           }else{
-                if(($scope.myProfileForm.stepValue !== '') && ($scope.myProfileForm.emailField !== '')
-                   && ($scope.myProfileForm.email.$valid)){
-                    $scope.loading = true;
-                    $('.loadingMask').show();
-                    callServerGETAPI(httpPromise, submiProfileAPI, showTableData);
-                }
-           }
-        }else{
-        	//Other form
-        	if($scope.otherProfileForm.stepValue > 10){
-        		alert('Please enter steps between 1 to 10.');
-        		$scope.otherProfileForm.stepValue = '';
-        		$scope.otherProfileForm.emailField = '';
-        		return false;
-        	}
 
-            if($scope.otherProfileForm.stepValue < 4){
-                if($scope.otherProfileForm.stepValue !== ''){
-                    $scope.loading = true;
-                    $('.loadingMask').show();
-                    callServerGETAPI(httpPromise, submiProfileAPI, showTableData);
-                }
-            }else{
-                if(($scope.otherProfileForm.stepValue !== '') && ($scope.otherProfileForm.emailField !== '')
-                   && ($scope.otherProfileForm.email.$valid)){
-                    $scope.loading = true;
-                    $('.loadingMask').show();
-                    callServerGETAPI(httpPromise, submiProfileAPI, showTableData);
-                }
+    $scope.my = {stepValue: null, includeTop50: false, email: ''};
+    $scope.other = {otherId: '', stepValue: null, includeTop50: false, email: '', selectedName: ''};
+    $scope.myBusy = false;    $scope.myError = '';    $scope.myMsg = '';
+    $scope.otherBusy = false; $scope.otherError = ''; $scope.otherMsg = '';
+    $scope.search = {query: '', results: [], busy: false, error: '', page: 1, hasNext: false, searched: false};
+
+    // ---- validation shared by both tabs; returns an error string or '' ----
+    function validate(model, needsId){
+        var s = parseInt(model.stepValue, 10);
+        if(isNaN(s) || s < 1 || s > 10){
+            return 'Please enter a number of steps between 1 and 10.';
+        }
+        if(needsId && !String(model.otherId || '').replace(/\D/g, '').length){
+            return 'Please pick a profile (search above) or enter a profile ID.';
+        }
+        if(s >= 4 && !EMAIL_RE.test(model.email || '')){
+            return 'Runs of 4 or more steps are emailed to you step by step - please enter a valid email address.';
+        }
+        return '';
+    }
+
+    // ---- pull the numeric id out of a pasted geni.com URL ----
+    $scope.idTyped = function(){
+        $scope.other.selectedName = '';
+        var raw = String($scope.other.otherId || '');
+        if(raw.indexOf('geni.com') !== -1 || /[^0-9]/.test(raw)){
+            var m = raw.match(/(\d{5,})/g);
+            if(m && m.length){
+                $scope.other.otherId = m[m.length - 1];
             }
         }
-    }
+    };
 
-    function showTableData(responseData){
-        $scope.loading = false;
-        $('.loadingMask').hide();
-        if($rootScope.formId === '#otherProfileForm'){
-            $scope.otherProfileData = responseData;
-            if(! angular.isUndefined($scope.otherProfileData.backgroundMessage)){
-                $scope.otherProfileFormSuccessMsg = true;
-                $('#otherProfileFormSuccessMsg').html($scope.otherProfileData.backgroundMessage);
-                $('#otherProfileFormSuccessMsg').css("background-color","#00BFFF");
-                setTimeout(function(){
-                    $scope.otherProfileFormSuccessMsg = false;
-                    $('#otherProfileFormSuccessMsg').fadeOut('slow');
-                }, 5000);
-            };
-            $scope.showTableDataOtherProfile = true;
-            $scope.otherProfileForm.stepValue = null;
-            $scope.otherProfileForm.emailField = null;
-        }else{
-            $scope.myProfileData = responseData;
-            console.log(!angular.isUndefined($scope.myProfileData.backgroundMessage));
-            if(!angular.isUndefined($scope.myProfileData.backgroundMessage)){
-                $scope.myProfileFormSuccessMsg = true;
-                $('#myProfileFormSuccessMsg').html($scope.myProfileData.backgroundMessage);
-                $('#myProfileFormSuccessMsg').css("background-color","#00BFFF");
-                setTimeout(function(){
-                    $scope.myProfileFormSuccessMsg = false;
-                    $('#myProfileFormSuccessMsg').fadeOut('slow');
-                }, 5000);
-            };
-            $scope.showTableDataMyProfile = true;
-            $scope.myProfileForm.stepValue = null;
-            $scope.myProfileForm.emailField = null;
+    // ---- profile search (Geni profile/search via our /searchProfiles) ----
+    $scope.runSearch = function(page){
+        var q = (($scope.search.query) || '').replace(/^\s+|\s+$/g, '');
+        if(!q){ return false; }
+        $scope.search.busy = true;
+        $scope.search.error = '';
+        $http.get('/searchProfiles', {params: {names: q, page: page || 1}})
+            .success(function(data){
+                $scope.search.busy = false;
+                $scope.search.searched = true;
+                $scope.search.results = data.results || [];
+                $scope.search.page = data.page || 1;
+                $scope.search.hasNext = !!data.has_next;
+            })
+            .error(function(data, status){
+                $scope.search.busy = false;
+                $scope.search.searched = true;
+                $scope.search.results = [];
+                $scope.search.error = (status === 401) ?
+                    'Your session expired - please log in again.' :
+                    'Search failed - please try again in a moment.';
+            });
+        return false;
+    };
+
+    $scope.handleSearchKey = function($event){
+        if($event.keyCode === 13){
+            $event.preventDefault();
+            $scope.runSearch(1);
+        }
+    };
+
+    $scope.selectProfile = function(p){
+        $scope.other.otherId = p.guid;
+        $scope.other.selectedName = p.name;
+        $scope.otherError = '';
+    };
+
+    // ---- submit: My Profile tab ----
+    $scope.submitMy = function(){
+        $scope.myError = ''; $scope.myMsg = '';
+        var err = validate($scope.my, false);
+        if(err){ $scope.myError = err; return; }
+        var s = parseInt($scope.my.stepValue, 10);
+        var params = {stepCount: s, myProfile: 'true'};
+        if($scope.my.includeTop50){ params.includeTop50 = 'on'; }
+        if(s >= 4){ params.email = $scope.my.email; }
+        $scope.myBusy = true;
+        $http.get('/getUniqueCount', {params: params})
+            .success(function(data){ finish('my', data); })
+            .error(function(){ fail('my'); });
+    };
+
+    // ---- submit: Another Profile tab ----
+    $scope.submitOther = function(){
+        $scope.otherError = ''; $scope.otherMsg = '';
+        var err = validate($scope.other, true);
+        if(err){ $scope.otherError = err; return; }
+        var s = parseInt($scope.other.stepValue, 10);
+        var params = {stepCount: s, myProfile: 'false',
+                      otherId: String($scope.other.otherId).replace(/\D/g, '')};
+        if($scope.other.includeTop50){ params.includeTop50 = 'on'; }
+        if(s >= 4){ params.email = $scope.other.email; }
+        $scope.otherBusy = true;
+        $http.get('/getUniqueCount', {params: params})
+            .success(function(data){ finish('other', data); })
+            .error(function(){ fail('other'); });
+    };
+
+    function finish(which, data){
+        var msg = data && data.backgroundMessage;
+        if(which === 'my'){
+            $scope.myBusy = false;
+            if(msg){ $scope.myMsg = msg; }
+            else { $scope.myProfileData = data; $scope.showTableDataMyProfile = true; }
+        } else {
+            $scope.otherBusy = false;
+            if(msg){ $scope.otherMsg = msg; }
+            else { $scope.otherProfileData = data; $scope.showTableDataOtherProfile = true; }
         }
     }
 
+    function fail(which){
+        var msg = 'Something went wrong - your login may have expired. ' +
+                  'Please reload the page and log in again.';
+        if(which === 'my'){ $scope.myBusy = false; $scope.myError = msg; }
+        else { $scope.otherBusy = false; $scope.otherError = msg; }
+    }
 };
 
 var Top10Controller = function($scope,$rootScope, $http){
