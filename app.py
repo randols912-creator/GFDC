@@ -475,13 +475,14 @@ def setup_app(app):
     except Exception as _dbe:
         LOGGER.error('setup_db failed at boot (continuing without DB init): %s', _dbe)
 
-    app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SECRET_KEY'] = '12345abcde'
-    app.config['REDIS_URL'] = get_redis_url()
-
-    # a DictStore will store everything in memory
-    # this will replace the app's session handling
-    app.config['SESSION_TYPE'] = 'filesystem'
+    # Store sessions in Redis instead of on the dyno's local disk. Filesystem
+    # sessions were wiped on every deploy/restart (and don't work across multiple
+    # dynos), which silently logged people out mid-visit and made a calculation
+    # quietly do nothing. CONN is the app's existing Redis connection.
+    app.config['SESSION_TYPE'] = 'redis'
+    app.config['SESSION_REDIS'] = CONN
+    app.config['SESSION_PERMANENT'] = False
     Session(app)
 
     PORT = int(os.environ.get('PORT', 5000))
