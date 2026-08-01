@@ -161,7 +161,20 @@
                             <h4 class="modal-title" id="contactFormLabel">Contact us</h4>
                         </div>
                         <div class="modal-body">
-                            <script type="text/javascript" src="http://form.jotform.us/jsform/40618781407154"></script>
+                            <form id="gfdcContactForm" onsubmit="return gfdcSendContact(this);">
+                                <div class="form-group">
+                                    <input class="form-control" name="name" placeholder="Your name" maxlength="100" required/>
+                                </div>
+                                <div class="form-group">
+                                    <input class="form-control" type="email" name="email" placeholder="Your email" maxlength="200" required/>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" name="message" rows="5" placeholder="Your message" maxlength="4000" required></textarea>
+                                </div>
+                                <input type="text" name="website" value="" style="display:none" tabindex="-1" autocomplete="off"/>
+                                <button type="submit" class="btn btn-primary" id="gfdcContactSend">Send message</button>
+                                <span id="gfdcContactStatus" style="margin-left:10px;font-size:13px;"></span>
+                            </form>
                         </div>
                         <!--<div class="modal-footer">
                           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -170,6 +183,30 @@
                     </div>
                 </div>
             </div>
+<script type="text/javascript">
+function gfdcSendContact(form){
+    var btn = document.getElementById('gfdcContactSend');
+    var status = document.getElementById('gfdcContactStatus');
+    btn.disabled = true; status.style.color = '#666'; status.textContent = 'Sending…';
+    fetch('/contact', {method: 'POST', body: new URLSearchParams(new FormData(form))})
+        .then(function(r){ return r.json().then(function(j){ return {ok: r.ok, j: j}; }); })
+        .then(function(res){
+            btn.disabled = false;
+            if(res.ok && res.j.sent){
+                status.style.color = '#3c763d'; status.textContent = 'Message sent - thank you!';
+                form.reset();
+            } else {
+                status.style.color = '#a94442';
+                status.textContent = (res.j && res.j.error) || 'Could not send - please try again.';
+            }
+        })
+        .catch(function(){
+            btn.disabled = false;
+            status.style.color = '#a94442'; status.textContent = 'Could not send - please try again.';
+        });
+    return false;
+}
+</script>
 <script language="javascript" type="text/javascript">
     var canvas = window.top.document.getElementById("app_content_frame");
     if (canvas != null) {
