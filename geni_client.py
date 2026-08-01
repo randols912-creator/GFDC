@@ -21,6 +21,7 @@ OTHERS_URL = 'https://www.geni.com/api/profile-G{guid}'
 GENI_API_SLEEP_REMAINING = 50
 GENI_API_SLEEP_LIMIT = 50
 GENI_API_SLEEP_WINDOW = 10
+_RATE_LOGGED = None  # last (limit, window) logged, so we log once per change
 
 LOGGER = logging.getLogger()
 logging.getLogger("requests").setLevel(logging.WARNING)
@@ -92,6 +93,11 @@ def get_profile_details(access_token, refresh_token, profile_id, current_step):
             GENI_API_SLEEP_LIMIT = int(profile_response.headers['X-API-Rate-Limit'])
             GENI_API_SLEEP_REMAINING = int(profile_response.headers['X-API-Rate-Remaining'])
             GENI_API_SLEEP_WINDOW = int(profile_response.headers['X-API-Rate-Window'])
+            global _RATE_LOGGED
+            if _RATE_LOGGED != (GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW):
+                _RATE_LOGGED = (GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW)
+                LOGGER.info('Geni API rate limit: %d requests per %ds window',
+                            GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW)
             profile_object = get_profile_obj(profile_response.text)
             continue_flag = False
         except GeniOAuthError as goae:

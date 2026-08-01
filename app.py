@@ -16,7 +16,7 @@ from geni_client import build_auth_url, get_new_token, get_other_profile, \
 from flask_session import Session
 from db import \
     get_top_profiles, get_top10_profiles, save_geni_profile, get_top50_profiles, setup_db
-from mail import sendEmail
+from mail import sendEmail, send_contact_email
 from rq import Queue
 from worker import CONN, get_redis_url
 
@@ -421,6 +421,24 @@ def top():
     except:
         LOGGER.exception('top error:')
     return jsonify(data)
+
+@APP.route('/contact', methods=['POST'])
+def contact():
+    """Contact form: emails the site owner via Mailgun. No login required.
+    The hidden 'website' field is a honeypot - bots fill it, humans don't."""
+    if (request.form.get('website') or '').strip():
+        return jsonify({'sent': True})  # pretend success, send nothing
+    name = (request.form.get('name') or '').strip()[:100]
+    email = (request.form.get('email') or '').strip()[:200]
+    message = (request.form.get('message') or '').strip()[:4000]
+    if not name or not message or '@' not in email or '.' not in email.split('@')[-1]:
+        return jsonify({'error': 'Please fill in your name, a valid email, and a message.'}), 400
+    try:
+        send_contact_email(name, email, message)
+        return jsonify({'sent': True})
+    except Exception:
+        LOGGER.exception('contact form send failed:')
+        return jsonify({'error': 'Sending failed - please try again later.'}), 502
 
 @APP.route('/searchProfiles')
 def search_profiles_route():
