@@ -421,9 +421,12 @@ def page_not_found(error):
 def setup_app(app):
     """Do general app setup so we can run from gunicorn or command line"""
     global HOST, PORT
-    setup_db()
+    try:
+        setup_db()
+    except Exception as _dbe:
+        LOGGER.error('setup_db failed at boot (continuing without DB init): %s', _dbe)
 
-    app.config['SESSION_TYPE'] = 'redis'
+    app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SECRET_KEY'] = '12345abcde'
     app.config['REDIS_URL'] = get_redis_url()
 
