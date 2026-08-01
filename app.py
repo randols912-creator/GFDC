@@ -12,7 +12,7 @@ set_configs()
 from flask import Flask, redirect, request, session, url_for, jsonify, send_file
 import json
 from geni_client import build_auth_url, get_new_token, get_other_profile, \
-    get_profile_details, invalidate_token
+    get_profile_details, invalidate_token, search_profiles
 from flask_session import Session
 from db import \
     get_top_profiles, get_top10_profiles, save_geni_profile, get_top50_profiles, setup_db
@@ -421,6 +421,22 @@ def top():
     except:
         LOGGER.exception('top error:')
     return jsonify(data)
+
+@APP.route('/searchProfiles')
+def search_profiles_route():
+    """Search Geni profiles by name so users can pick one instead of
+    hunting for a numeric profile id. Uses the logged-in user's token."""
+    if 'access_token' not in session:
+        return jsonify({'error': 'not_logged_in'}), 401
+    names = (request.args.get('names') or '').strip()
+    page = request.args.get('page', '1')
+    if not names:
+        return jsonify({'results': [], 'page': 1, 'has_next': False})
+    try:
+        return jsonify(search_profiles(session['access_token'], names, page))
+    except Exception:
+        LOGGER.exception('searchProfiles error:')
+        return jsonify({'error': 'search_failed'}), 502
 
 @APP.route('/record_count', methods=['POST'])
 def record_count():
