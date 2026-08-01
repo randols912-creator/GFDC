@@ -180,10 +180,13 @@ def get_step_profiles(count, visited_set, profile_id, local_session):
             visited_set.add(login_profile_id)
             #session['visited-' + login_profile_id] = True
             for node in profile_data['relations']:
+                node_id = node['id']
+                if node_id in visited_set:  # skip self / duplicate in immediate family
+                    continue
                 unique_count = unique_count + 1
                 next_step_profiles = next_step_profiles + '*' + node['id']  # *** delimiter
                 #session['visited-' + node['id']] = True
-                visited_set.add(node['id'])
+                visited_set.add(node_id)
 
             local_session['next_step_profiles'] = next_step_profiles[1:]
             local_session['totalProfiles'] = unique_count
@@ -195,10 +198,8 @@ def get_step_profiles(count, visited_set, profile_id, local_session):
             if profile_id == '' or profile_id is None:
                 pass
             else:
-                try:
-                    if local_session[profile_id] != None:
-                        profile_data = local_session[profile_id]
-                except KeyError:
+                profile_data = local_session.get(profile_id)
+                if profile_data is None:
                     profile_data = get_profile_details(session['access_token'], session['refresh_token'], profile_id, current_step)
                 if profile_data['status'] == 'SUCCESS':
                     #Got profile data, process each relation
@@ -289,7 +290,15 @@ def get_step_profiles_thread(access_token, refresh_token, count, visited_set, pr
     LOGGER.debug("get_step_profiles_thread count=%s, access_token=%s, profile_id=%s", str(count), access_token, profile_id)
     current_step = count
     unique_count = 0
-    next_step_profiles = ''
+    # Memory-bounded de-duplication (rolling layers).
+    # BFS theorem on an undirected graph: every edge joins two profiles whose
+    # step-distance differs by at most 1. So a neighbor of a step n-1 profile is
+    # only ever at step n-2, n-1, or n -- never earlier. That means we only need
+    # the two previous layers (n-2, n-1) plus the new one being built (n) to
+    # de-duplicate correctly; every older layer can be released. IDs are stored
+    # as ints when numeric (Geni ids are), which is ~25% smaller than as strings.
+    def _key(pid):
+        return int(pid) if (isinstance(pid, str) and pid.isdigit()) else pid
     if current_step == 0:
         profile_data = get_profile_details(access_token, refresh_token, profile_id, current_step)
         if profile_data['status'] == 'SUCCESS':
@@ -297,41 +306,44 @@ def get_step_profiles_thread(access_token, refresh_token, count, visited_set, pr
             local_session['stepUserLink'] = profile_data['geniLink']
             local_session['guid'] = profile_data['guid']
             local_session['stepProfileName'] = profile_data['profileName']
-            local_session[profile_data['id']] = profile_data
             access_token = profile_data['access_token']
             refresh_token = profile_data['refresh_token']
-            login_profile_id = local_session['loginProfileId']
-            profile_data = local_session[login_profile_id]
-            visited_set.add(login_profile_id)
-            #session['visited-' + login_profile_id] = True
+            login_profile_id = profile_data['id']
+            prev_layer = set()               # step n-2 (seeded with the source itself)
+            prev_layer.add(_key(login_profile_id))
+            frontier = set()                 # step n-1 (the layer we expand next)
             for node in profile_data['relations']:
+                node_key = _key(node['id'])
+                if node_key in prev_layer or node_key in frontier:  # skip self / duplicate
+                    continue
+                frontier.add(node_key)
                 unique_count = unique_count + 1
-                next_step_profiles = next_step_profiles + '*' + node['id']  # *** delimiter
-                #session['visited-' + node['id']] = True
-                visited_set.add(node['id'])
-
-            local_session['next_step_profiles'] = next_step_profiles[1:]
+            local_session['layer_prev'] = prev_layer
+            local_session['layer_frontier'] = frontier
             local_session['totalProfiles'] = unique_count
     else:
-        next_step_profiles = local_session['next_step_profiles']
-        profile_ids = next_step_profiles.split('*')
-        next_step_profiles = ''
-        for profile_id in profile_ids:
-            profile_data = get_profile_details(access_token, refresh_token, profile_id, current_step)
+        prev_layer = local_session['layer_prev']          # step n-2
+        frontier = local_session['layer_frontier']        # step n-1 (expand these)
+        new_layer = set()                                 # step n (being built)
+        for node_key in frontier:
+            fetch_id = str(node_key) if isinstance(node_key, int) else node_key
+            profile_data = get_profile_details(access_token, refresh_token, fetch_id, current_step)
             if profile_data['status'] == 'SUCCESS':
                 #Got profile data, process each relation - refresh tokens
                 access_token = profile_data['access_token']
                 refresh_token = profile_data['refresh_token']
                 for node in profile_data['relations']:
-                    node_id = node['id']
-                    if node_id in visited_set:
+                    nkey = _key(node['id'])
+                    # already counted (n-2 back-edge, n-1 sibling, or found this round)?
+                    if nkey in prev_layer or nkey in frontier or nkey in new_layer:
                         pass
                     else:
-                        next_step_profiles = next_step_profiles + '*' + node['id']
+                        new_layer.add(nkey)
                         unique_count = unique_count + 1
-                        visited_set.add(node['id'])
             del profile_data
-        local_session['next_step_profiles'] = next_step_profiles[1:]
+        # roll forward one step: n-2 <- n-1, n-1 <- n; the old n-2 is released
+        local_session['layer_prev'] = frontier
+        local_session['layer_frontier'] = new_layer
         local_session['totalProfiles'] = local_session['totalProfiles'] + unique_count
     current_step = current_step + 1
     local_session['current_step'] = current_step

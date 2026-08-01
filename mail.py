@@ -20,8 +20,11 @@ def sendEmail(toMail, data):
                               "subject": subject,
                               "html": htmlContent})
     if (ret.status_code != requests.codes.ok):
-        LOGGER.exception('Bad mailgun return %d', r.status_code)
+        LOGGER.error('Bad mailgun return %d: %s', ret.status_code, ret.text)
         ret.raise_for_status()
+    else:
+        LOGGER.info('mailgun accepted message to %s (status %d)', toMail, ret.status_code)
+    return ret
 
 #Step    Profiles    Total
 #1       8           8
