@@ -7,7 +7,7 @@ geniframework.config(['$routeProvider', function($routeProvider){
 		controller : HomeController
 	});
     $routeProvider.when('/unique', {
-		templateUrl : '../../static/partials/unique.html',
+		templateUrl : '../../static/partials/unique.html?v=3',
 		controller : UniqueController
 	});
 /*
