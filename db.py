@@ -9,15 +9,26 @@ from peewee import Model, CharField, \
 import os, logging
 
 LOGGER = logging.getLogger()
-DB_HOST = os.getenv('GENI_DB_HOST', '')
-DB_NAME = os.getenv('GENI_DB_NAME', '')
-DB_USER = os.getenv('GENI_DB_USER', '')
-DB_PASSWD = os.getenv('GENI_DB_PASSWD', '')
+from urllib.parse import urlparse
+_db_url = os.getenv('JAWSDB_URL') or os.getenv('DATABASE_URL') or os.getenv('CLEARDB_DATABASE_URL')
+if _db_url:
+    _u = urlparse(_db_url)
+    DB_HOST = _u.hostname or ''
+    DB_NAME = (_u.path or '/').lstrip('/')
+    DB_USER = _u.username or ''
+    DB_PASSWD = _u.password or ''
+    DB_PORT = _u.port or 3306
+else:
+    DB_HOST = os.getenv('GENI_DB_HOST', '')
+    DB_NAME = os.getenv('GENI_DB_NAME', '')
+    DB_USER = os.getenv('GENI_DB_USER', '')
+    DB_PASSWD = os.getenv('GENI_DB_PASSWD', '')
+    DB_PORT = int(os.getenv('GENI_DB_PORT', '3306'))
 STEP_THRESHOLD = 50
 MY_DB = pw.MySQLDatabase(
     DB_NAME,
     host=DB_HOST,
-    port=3306,
+    port=DB_PORT,
     user=DB_USER,
     passwd=DB_PASSWD)
 
