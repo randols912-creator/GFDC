@@ -40,7 +40,7 @@ def prepateHtml(data):
         htmlContent = htmlContent + '<tr><td>' + str(s['step']) + '</td><td>' + str(s['profiles']) + '</td><td>' + str(s['total']) + '</td></tr>'
     htmlContent = htmlContent + '</table><br/><br/>'
     htmlContent = htmlContent + '<h5>Steps remaining:' + data['remainingSteps'] + '</h5><br/>'
-    htmlContent = htmlContent + 'Please visit GFDC  <b><a href=\'http://gfdc.wnx.com\'>here</a></b>.<br/><br/>'
+    htmlContent = htmlContent + 'Please visit GFDC  <b><a href=\'https://gfdc-847976dd14c0.herokuapp.com/\'>here</a></b>.<br/><br/>'
     htmlContent = htmlContent + 'Thank you,<br/>GFDC</body></html>'
     return htmlContent
 
