@@ -9,6 +9,10 @@
     <link href="/static/images/apple-touch-icon-114x114.png" rel="apple-touch-icon" sizes="114x114" />
     <link href="/static/images/apple-touch-icon-144x144.png" rel="apple-touch-icon" sizes="144x144" />
     <link type="text/css" rel="stylesheet" href="/static/css/base.css">
+    <style>
+        /* Four header items: tighten padding so they fit on one row */
+        nav a, nav a:visited, nav a:focus { padding-left: 9px; padding-right: 9px; }
+    </style>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="/static/js/jquery.js"><\/script>')</script>
     <script language="javascript" type="text/javascript">
@@ -39,7 +43,7 @@
             <div class="container">
                 <h1 class="logo one-third column alpha">
                     <a href="http://historylink.herokuapp.com/" title="HistoryLink">
-                        <img src="/static/images/HistoryLink6.png" alt="HistoryLink" class="scale-with-grid" style="padding-left: 30px; padding-top: 5px;"/>
+                        <img src="/static/images/HistoryLink6.png" alt="HistoryLink" class="scale-with-grid" style="padding-left: 10px; padding-top: 5px;"/>
                         <img src="/static/images/HistoryLink5sm.png" alt="HistoryLink" class="scale-with-grid mobile-only"/>
                     </a>
                 </h1>
@@ -49,6 +53,7 @@
                         <li><a href="http://historylink.herokuapp.com/history">History Search<br/><span style="color: #888">Investigate your History</span></a></li>
                         <li><a href="http://historylink.herokuapp.com/graph">Ancestor Graph<br/><span style="color: #888">Visualize your Ancestry</span></a></li>
                         <li><a href="/login">Density Calculator<br/><span style="color: #888">Calculate Forest Density</span></a></li>
+                        <li><a href="https://path-to-user.herokuapp.com/">Path to User<br/><span style="color: #888">Find a Path to a Profile</span></a></li>
                         <!--
                         <li><a href="/graph">SmartCopy<br/><span style="color: #888">Visualize your Ancestry</span></a></li>
                         <li><a href="/logout">Logout</a></li>
