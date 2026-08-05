@@ -10,8 +10,23 @@ import json
 BASE_URL = 'https://www.geni.com/'
 REDIRECT_URL = os.getenv('GENI_REDIRECT_URL', 'http://localhost:5000/home')
 AUTH_URL = 'platform/oauth/authorize'
-CLIENT_ID = os.getenv('GENI_CLIENT_ID', '')
-CLIENT_SECRET = os.getenv('GENI_CLIENT_SECRET', '')
+
+# Rate-limit stopgap: App 2134 is new and, until Geni approves it, capped at
+# the unapproved default of 1 request/10s — too slow for anything but the
+# shallowest searches. App 220 is the older, already-approved GFDC app with a
+# higher limit, and its Callback URL already matches this same Heroku domain,
+# so no separate redirect URL is needed. Setting GENI_USE_LEGACY_APP=1 (a
+# Heroku config var) switches every new login to App 220 instead of 2134.
+# Flip it back to 0/unset once 2134 is approved. A token issued under one app
+# cannot be reused under the other, so users must log in again after flipping
+# this — it takes effect on next login, not mid-session.
+USE_LEGACY_APP = os.getenv('GENI_USE_LEGACY_APP', '0').strip().lower() in ('1', 'true', 'yes')
+if USE_LEGACY_APP:
+    CLIENT_ID = os.getenv('GENI_CLIENT_ID_LEGACY', '')
+    CLIENT_SECRET = os.getenv('GENI_CLIENT_SECRET_LEGACY', '')
+else:
+    CLIENT_ID = os.getenv('GENI_CLIENT_ID', '')
+    CLIENT_SECRET = os.getenv('GENI_CLIENT_SECRET', '')
 TOKEN_URL = 'https://www.geni.com/platform/oauth/request_token'
 PROF_URL = 'https://www.geni.com/api/profile/immediate-family?fields=id,deleted,merged_into,name,guid'
 IMM_FAM_URL = 'https://www.geni.com/api/?/immediate-family?fields=id,deleted,merged_into,name,guid'
@@ -29,6 +44,9 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 def build_auth_url():
     """Create the OAuth url for the application"""
     LOGGER.debug("buildAuthUrl")
+    LOGGER.info('build_auth_url: using %s Geni app (client_id starts %s...)',
+                'LEGACY (220)' if USE_LEGACY_APP else 'primary (2134)',
+                CLIENT_ID[:8] if CLIENT_ID else '<empty>')
     params = {
         'client_id': CLIENT_ID,
         'redirect_uri': REDIRECT_URL
