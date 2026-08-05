@@ -80,6 +80,9 @@ def get_profile_details(access_token, refresh_token, profile_id, current_step):
     profile_object = None
     new_access_token = None
     new_refresh_token = None
+    api_error_attempts = 0
+    max_api_error_attempts = 5  # bounded retry so a genuinely denied profile
+                                # still fails eventually instead of looping forever
     while continue_flag:
         try:
             if not profile_id:
@@ -87,18 +90,43 @@ def get_profile_details(access_token, refresh_token, profile_id, current_step):
             else:
                 url = IMM_FAM_URL.replace('?', profile_id, 1)
                 profile_response = requests.get(url, params=payload)
-            LOGGER.debug("Header X-API-Rate-Limit: %s", profile_response.headers['X-API-Rate-Limit'])
-            LOGGER.debug("Header X-API-Rate-Remaining: %s", profile_response.headers['X-API-Rate-Remaining'])
-            LOGGER.debug("Header X-API-Rate-Window: %s", profile_response.headers['X-API-Rate-Window'])
-            GENI_API_SLEEP_LIMIT = int(profile_response.headers['X-API-Rate-Limit'])
-            GENI_API_SLEEP_REMAINING = int(profile_response.headers['X-API-Rate-Remaining'])
-            GENI_API_SLEEP_WINDOW = int(profile_response.headers['X-API-Rate-Window'])
+            LOGGER.debug("Header X-API-Rate-Limit: %s", profile_response.headers.get('X-API-Rate-Limit'))
+            LOGGER.debug("Header X-API-Rate-Remaining: %s", profile_response.headers.get('X-API-Rate-Remaining'))
+            LOGGER.debug("Header X-API-Rate-Window: %s", profile_response.headers.get('X-API-Rate-Window'))
+            lim = profile_response.headers.get('X-API-Rate-Limit')
+            win = profile_response.headers.get('X-API-Rate-Window')
+            rem = profile_response.headers.get('X-API-Rate-Remaining')
+            if lim is not None:
+                GENI_API_SLEEP_LIMIT = int(lim)
+            if win is not None:
+                GENI_API_SLEEP_WINDOW = int(win)
+            if rem is not None:
+                GENI_API_SLEEP_REMAINING = int(rem)
             global _RATE_LOGGED
             if _RATE_LOGGED != (GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW):
                 _RATE_LOGGED = (GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW)
                 LOGGER.info('Geni API rate limit: %d requests per %ds window',
                             GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW)
             profile_object = get_profile_obj(profile_response.text)
+            # Anything other than a clean SUCCESS here — a 200 whose body is a
+            # Geni API error (not an OAuth error), or a body that didn't parse
+            # as JSON at all — looks identical, from here, to a real "profile
+            # access denied". But on a throttled app it is often actually a
+            # rate-limit rejection (Geni doesn't always answer throttling with
+            # a plain HTTP 429). Retry a bounded number of times before
+            # accepting it as a genuine denial, instead of failing instantly.
+            if profile_object.get('status') != 'SUCCESS' \
+                    and api_error_attempts < max_api_error_attempts:
+                api_error_attempts += 1
+                LOGGER.warning('get_profile_details non-success response for '
+                                'profile %s (status=%r, attempt %d/%d) - '
+                                'retrying in %ds in case this is rate-limit '
+                                'throttling rather than a real denial',
+                                profile_id, profile_object.get('status'),
+                                api_error_attempts, max_api_error_attempts,
+                                GENI_API_SLEEP_WINDOW)
+                time.sleep(GENI_API_SLEEP_WINDOW)
+                continue
             continue_flag = False
         except GeniOAuthError as goae:
             LOGGER.error('Geni oauth error - %s', goae)
@@ -118,11 +146,67 @@ def get_profile_details(access_token, refresh_token, profile_id, current_step):
     return profile_object
 
 def get_other_profile(access_token, guid):
-    """Retrieve the profile of the non-logged in user as specified"""
+    """Retrieve the profile of the non-logged in user as specified.
+
+    Unlike get_profile_details, this used to make a single bare request with
+    no rate-limit awareness or retry — on a throttled app (e.g. a newly
+    registered, unapproved app at Geni's default 1 request/10s) a 429 here
+    surfaced to users as the generic, misleading "This profile access is
+    denied" message. It now shares the same rate-limit globals as
+    get_profile_details and retries transient throttling instead of giving
+    up on the first request."""
+    global GENI_API_SLEEP_REMAINING, GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW
     LOGGER.debug("get_other_profile")
     payload = {'access_token':access_token}
     url = OTHERS_URL.replace('{guid}', guid)
-    profile_response = requests.get(url, params=payload)
+
+    if GENI_API_SLEEP_REMAINING == 0:
+        LOGGER.debug('get_other_profile sleeping before geni api calling')
+        time.sleep(GENI_API_SLEEP_WINDOW)
+        GENI_API_SLEEP_REMAINING = GENI_API_SLEEP_LIMIT
+
+    max_attempts = 6
+    for attempt in range(1, max_attempts + 1):
+        try:
+            profile_response = requests.get(url, params=payload, timeout=30)
+        except requests.RequestException as e:
+            LOGGER.warning('get_other_profile network error (attempt %d/%d): %s',
+                            attempt, max_attempts, e)
+            time.sleep(5)
+            continue
+
+        lim = profile_response.headers.get('X-API-Rate-Limit')
+        win = profile_response.headers.get('X-API-Rate-Window')
+        rem = profile_response.headers.get('X-API-Rate-Remaining')
+        if lim is not None and win is not None:
+            GENI_API_SLEEP_LIMIT = int(lim)
+            GENI_API_SLEEP_WINDOW = int(win)
+        if rem is not None:
+            GENI_API_SLEEP_REMAINING = int(rem)
+            global _RATE_LOGGED
+            if _RATE_LOGGED != (GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW):
+                _RATE_LOGGED = (GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW)
+                LOGGER.info('Geni API rate limit: %d requests per %ds window',
+                            GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW)
+
+        if profile_response.status_code == 429:
+            wait = int(profile_response.headers.get('Retry-After', GENI_API_SLEEP_WINDOW))
+            LOGGER.warning('get_other_profile rate limited (429); sleeping %ss '
+                            '(attempt %d/%d)', wait, attempt, max_attempts)
+            time.sleep(wait)
+            continue
+
+        if profile_response.status_code >= 500:
+            LOGGER.warning('get_other_profile Geni answered %s; retrying in 10s '
+                            '(attempt %d/%d)', profile_response.status_code,
+                            attempt, max_attempts)
+            time.sleep(10)
+            continue
+
+        return profile_response.text
+
+    LOGGER.error('get_other_profile giving up after %d attempts (still throttled '
+                 'or erroring)', max_attempts)
     return profile_response.text
 
 def get_profile_obj(profile_response):
