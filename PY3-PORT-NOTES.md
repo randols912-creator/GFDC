@@ -39,7 +39,7 @@ running from a new host (Heroku dyno) with a fresh IP is the fix.
    GENI_REDIRECT_URL (point at the new domain, e.g. https://<app>.herokuapp.com/home),
    and REDIS_URL (usually set automatically by the Redis add-on).
 4. In your Geni developer app, add the new redirect URI/domain to the allow-list.
-   (Public client id: x492T3tN2Rx1sSVObBfIracAmPXXk86imeLHLjeq)
+   (Public client id: 5VqX0578AOq8tvX4LG6C9P7v7A8lWHMSaEv3uKLT — Geni App 2134)
 5. Deploy, then: heroku ps:scale web=1 worker=1
 6. Smoke test: log in via Geni, run a density calculation.
 
