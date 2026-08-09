@@ -6,6 +6,7 @@
 
 from setenvs import set_configs
 import os, logging, logging.config
+from datetime import datetime, timezone
 
 set_configs()
 
@@ -15,7 +16,8 @@ from geni_client import build_auth_url, get_new_token, get_other_profile, \
     get_profile_details, invalidate_token, search_profiles
 from flask_session import Session
 from db import \
-    get_top_profiles, get_top10_profiles, save_geni_profile, get_top50_profiles, setup_db
+    get_top_profiles, get_top10_profiles, save_geni_profile, get_top50_profiles, setup_db, \
+    save_service_token
 from mail import sendEmail, send_contact_email
 from rq import Queue
 from worker import CONN, get_redis_url
@@ -63,6 +65,20 @@ def login():
     LOGGER.debug("login")
     return redirect(build_auth_url())
 
+# The label under which the unattended Top 20 rescan's OAuth tokens are
+# stored (db.ServiceAuth) -- just our own reference for which Geni login
+# this is, never sent to Geni. Keep in sync with rescan_top20.py.
+SERVICE_AUTH_LABEL = 'rschoenberg@jewishgen.org'
+
+@APP.route('/service-login')
+def service_login():
+    """Same OAuth flow as /login, but flags the resulting tokens (in /home)
+    to also be persisted to the DB for rescan_top20.py's unattended use --
+    a normal browsing session never touches that table."""
+    LOGGER.debug("service_login")
+    session['seed_service_token'] = SERVICE_AUTH_LABEL
+    return redirect(build_auth_url())
+
 @APP.route('/home')
 def home():
     """Handle the redirected OAuth session and capture tokens"""
@@ -77,6 +93,14 @@ def home():
         return redirect(url_for('login'))
     LOGGER.info('home just saved into session access token: %s', session['access_token'])
     session['current_step'] = 0
+    seed_label = session.pop('seed_service_token', None)
+    if seed_label:
+        save_service_token(
+            seed_label, session['access_token'], session['refresh_token'],
+            datetime.now(timezone.utc).isoformat())
+        LOGGER.info('home: seeded service token for %s', seed_label)
+        return ('Service login saved for automated Top 20 rescans '
+                '(label: %s). You can close this tab.' % seed_label)
     return send_file('templates/index.html')
 
 def set_tokens(token_response_text):

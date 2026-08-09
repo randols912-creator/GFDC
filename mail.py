@@ -36,6 +36,11 @@ def send_contact_email(name, email, message):
     ret.raise_for_status()
     return ret
 def sendEmail(toMail, data):
+    if not toMail:
+        # e.g. the unattended Top 20 rescan, which deliberately passes no
+        # recipient -- 20 profiles x 10 per-step emails would be spam
+        LOGGER.debug('sendEmail: no recipient, skipping')
+        return
     subject = "GFDC profile counts - " + data['guid']
     htmlContent = prepateHtml(data)
     ret = requests.post(

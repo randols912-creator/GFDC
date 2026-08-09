@@ -4,7 +4,7 @@ pymysql.install_as_MySQLdb()
 """db.py handle all of the database serialization and deserialization functions"""
 
 import peewee as pw
-from peewee import Model, CharField, \
+from peewee import Model, CharField, TextField, \
     IntegerField, AutoField, DoesNotExist
 import os, logging
 
@@ -81,6 +81,24 @@ class GeniJob(Model):
         """model meta information"""
         database = MY_DB
         db_table = 'geni_job'
+
+class ServiceAuth(Model):
+    """A persisted OAuth token pair for unattended (non-browser) jobs, e.g.
+    the every-~60-days Top 20 rescan. One row per labeled account -- the
+    label is just for our own reference (which Geni login it is), never
+    shown to Geni. refreshToken is what actually matters long-term:
+    accessToken is refreshed automatically before each use (see
+    rescan_top20.py) since it's normally short-lived."""
+    label = CharField(primary_key=True)
+    accessToken = TextField(null=True)
+    refreshToken = TextField(null=True)
+    updatedAt = CharField(null=True)      # ISO timestamp, string like the rest of this codebase
+    lastRescanAt = CharField(null=True)   # ISO timestamp of the last Top 20 rescan, or NULL if never run
+
+    class Meta(object):
+        """model meta information"""
+        database = MY_DB
+        db_table = 'service_auth'
 
 def save_geni_profile(step_data, name, guid, link):
     """serialize a geni profile"""
@@ -254,12 +272,52 @@ def get_top_profiles():
     MY_DB.close()
     return steps
 
+def save_service_token(label, access_token, refresh_token, updated_at):
+    """upsert a service account's OAuth token pair"""
+    LOGGER.debug("save_service_token label=%s", label)
+    MY_DB.connect(reuse_if_open=True)
+    try:
+        ServiceAuth.get(ServiceAuth.label == label)
+        query = ServiceAuth.update(
+            accessToken=access_token, refreshToken=refresh_token, updatedAt=updated_at
+        ).where(ServiceAuth.label == label)
+        query.execute()
+    except DoesNotExist:
+        ServiceAuth.create(
+            label=label, accessToken=access_token, refreshToken=refresh_token, updatedAt=updated_at
+        )
+    MY_DB.close()
+
+def get_service_token(label):
+    """retrieve a service account's OAuth token pair, or None if never seeded"""
+    LOGGER.debug("get_service_token label=%s", label)
+    MY_DB.connect(reuse_if_open=True)
+    try:
+        row = ServiceAuth.get(ServiceAuth.label == label)
+        result = {
+            'accessToken': row.accessToken, 'refreshToken': row.refreshToken,
+            'updatedAt': row.updatedAt, 'lastRescanAt': row.lastRescanAt,
+        }
+    except DoesNotExist:
+        result = None
+    MY_DB.close()
+    return result
+
+def set_last_rescan(label, timestamp):
+    """record when the Top 20 rescan last ran for this service account"""
+    LOGGER.debug("set_last_rescan label=%s ts=%s", label, timestamp)
+    MY_DB.connect(reuse_if_open=True)
+    query = ServiceAuth.update(lastRescanAt=timestamp).where(ServiceAuth.label == label)
+    query.execute()
+    MY_DB.close()
+
 def setup_db():
     global MY_DB
     MY_DB.connect(reuse_if_open=True)
     TopProfiles.create_table(True)
     GeniProfile.create_table(True)
     GeniJob.create_table(True)
+    ServiceAuth.create_table(True)
     MY_DB.close()
     LOGGER = logging.getLogger()
     LOGGER.info('db connect and tables created')
