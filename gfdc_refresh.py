@@ -31,6 +31,13 @@ LOGGER = logging.getLogger(__name__)
 
 TOP50_STEP = int(os.getenv('GFDC_REFRESH_STEP', '10'))
 
+# How many rows /top50 actually publishes. Imported rather than hardcoded so
+# this can never drift from what the site shows.
+try:
+    from db import STEP_THRESHOLD as PUBLISHED_LIMIT
+except ImportError:      # older db.py
+    PUBLISHED_LIMIT = 50
+
 
 class GeniOAuth(Model):
     """Single-row store for the most recently issued Geni tokens.
@@ -138,21 +145,46 @@ def stamp_computed_at(guid, step):
         LOGGER.debug('stamp_computed_at skipped (%s)', exc)
 
 
-def stalest_top50(step=None, limit=50):
-    """Top-50 profiles at `step`, oldest count first, never-counted first.
+# runDate is NOT used for staleness. Nothing in the current codebase writes it
+# -- /record_count stores counts through save_geni_profile, which never touches
+# it -- so it is frozen at whatever the old wnx server last wrote. Confirmed
+# 2026-08-17: Brigham Young reads 2015-05-01 even though schoenberg.com's
+# crawler recounted the top of this list in August 2026. Ordering by it would
+# aim the first runs at the biggest, most expensive trees on the strength of a
+# decade-old date that is simply wrong.
 
-    Ordering is NULL-first deliberately: a row with no computedAt predates the
-    column and is by definition the least trustworthy number on the board.
+
+def stalest_top50(step=None, limit=None):
+    """The PUBLISHED Top 50 at `step`, stalest first.
+
+    Two-stage on purpose. `geni_profiles` holds far more rows than the list
+    shows -- 573 at step 10 against a published 50 -- so ranking the whole
+    table by staleness would happily pick something at #400 and spend hours
+    recounting a number nobody can see. The inner query reproduces exactly what
+    /top50 publishes (top N by profile count, same STEP_THRESHOLD the app
+    uses); only then does the outer query order that set by staleness.
+
+    Un-stamped rows come first, and among them the CHEAPEST (fewest profiles)
+    first. Every row starts un-stamped, so that tiebreak decides the whole
+    first pass through the list: smallest-first clears the backlog quickly and
+    gets real timestamps onto many rows, where biggest-first would spend the
+    opening days on one giant walk. It also avoids redoing the top entries,
+    which schoenberg.com's crawler was still recounting in August 2026. Once
+    rows carry a computedAt the ordering becomes genuinely oldest-first and the
+    tiebreak stops mattering.
     """
     step = TOP50_STEP if step is None else step
+    limit = PUBLISHED_LIMIT if limit is None else limit
     rows = []
     try:
         MY_DB.connect(reuse_if_open=True)
         cursor = MY_DB.execute_sql(
             'SELECT profileId, profileName, profiles, computedAt '
-            'FROM geni_profiles WHERE step = %s '
+            'FROM (SELECT profileId, profileName, profiles, computedAt '
+            '      FROM geni_profiles WHERE step = %s '
+            '      ORDER BY profiles DESC LIMIT %s) published '
             'ORDER BY (computedAt IS NOT NULL), computedAt ASC, '
-            'profiles DESC LIMIT %s', (step, limit))
+            'profiles ASC', (step, limit))
         for guid, name, profiles, computed_at in cursor.fetchall():
             rows.append({'guid': guid, 'name': name,
                          'profiles': profiles, 'computedAt': computed_at})
