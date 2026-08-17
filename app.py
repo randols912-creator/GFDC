@@ -92,6 +92,16 @@ def home():
         LOGGER.warning('home: invalid/expired OAuth code, redirecting to login')
         return redirect(url_for('login'))
     LOGGER.info('home just saved into session access token: %s', session['access_token'])
+    # Persist the pair so the scheduled Top 50 refresh has credentials: a
+    # Scheduler dyno has no session, and a queued job is authenticated with
+    # whatever tokens were captured here. Logging in IS the seeding step.
+    # Wrapped so a storage problem can never break a login.
+    try:
+        import gfdc_refresh
+        gfdc_refresh.save_oauth(session['access_token'], session['refresh_token'])
+    except Exception as oauth_store_err:
+        LOGGER.warning('could not store tokens for the scheduled refresh: %s',
+                       oauth_store_err)
     session['current_step'] = 0
     seed_label = session.pop('seed_service_token', None)
     if seed_label:

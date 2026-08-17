@@ -127,6 +127,15 @@ def save_geni_profile(step_data, name, guid, link):
             profiles=step_data['total']
         )
         MY_DB.close()
+    # Record WHEN this count was made, on both the update and create paths, so
+    # the scheduled refresh can pick the stalest profile. Late import:
+    # gfdc_refresh imports MY_DB from this module, so a top-level import here
+    # would be circular. Never allowed to break a save.
+    try:
+        import gfdc_refresh
+        gfdc_refresh.stamp_computed_at(guid, step_data['step'])
+    except Exception as stamp_err:
+        LOGGER.debug("computedAt stamp skipped: %s", stamp_err)
 
 def save_profile(record):
     """save a profile in the top profiles table"""
