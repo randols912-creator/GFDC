@@ -177,8 +177,15 @@ def main():
             return 0
 
     if MIN_AGE_DAYS > 0:
-        from datetime import datetime, timedelta
-        cutoff = datetime.utcnow() - timedelta(days=MIN_AGE_DAYS)
+        from datetime import datetime, timedelta, timezone
+        # NAIVE UTC deliberately. MySQL hands back computedAt as a naive
+        # datetime, and comparing naive with timezone-aware raises TypeError --
+        # so the "obvious" fix for the 3.12 utcnow() deprecation
+        # (datetime.now(timezone.utc)) would break every comparison below.
+        # Strip the tzinfo instead; gfdc_refresh._now() writes the column the
+        # same way, so both sides stay naive UTC.
+        cutoff = (datetime.now(timezone.utc).replace(tzinfo=None)
+                  - timedelta(days=MIN_AGE_DAYS))
         fresh = [r for r in rows if r['computedAt'] and r['computedAt'] > cutoff]
         rows = [r for r in rows
                 if not r['computedAt'] or r['computedAt'] <= cutoff]
