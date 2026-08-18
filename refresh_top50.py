@@ -10,17 +10,19 @@ the numbers only move when somebody runs a calculation in the web UI, and
 
 This closes the loop inside GFDC, which is the natural home for it: the Redis
 queue, the worker dyno and the memory-efficient traversal already exist. One
-profile per run, oldest first, so the whole list cycles without ever running
-two heavy jobs at once.
+profile per run, stalest first, so the list cycles.
 
-    python3 refresh_top50.py            # enqueue one, if the queue is idle
+    python3 refresh_top50.py            # enqueue one
     python3 refresh_top50.py --dry-run  # show what it would pick
-    python3 refresh_top50.py --force    # enqueue even if jobs are pending
+    python3 refresh_top50.py --force    # ignore the idle check and the
+                                        # unserved-queue guard
 
-Suggested schedule: daily. A single Brigham-Young-scale walk can occupy the
-worker for many hours (jobs are enqueued with a 7-day timeout), so most runs
-will find the queue busy and exit immediately -- that is the intended
-behaviour, not a failure.
+Suggested schedule: daily. Walks are long -- measured 2026-08-17, they track
+the rate limit at roughly profiles / 36,000 hours, so a mid-list profile takes
+a day and the largest takes about six -- so most daily runs will find the
+refresher still busy and do nothing. That is the intended behaviour, not a
+failure. A full pass over the Top 50 (~40M profiles between them) is on the
+order of six to seven weeks, which is why the ordering is stalest-first.
 """
 import os
 import sys
@@ -41,8 +43,7 @@ STEP_COUNT = os.getenv('GFDC_REFRESH_STEPS', '10')
 NOTIFY = os.getenv('GFDC_REFRESH_EMAIL') or os.getenv('GENI_FROM_ADDR', '')
 
 # GFDC is a public tool -- other people start long calculations through the web
-# UI, and there is one worker dyno. This refresh must never make their runs
-# wait, so:
+# UI. This refresh must never make their runs wait, so:
 #
 #   * it enqueues onto the LOW queue. The worker listens on "high, default,
 #     low" in that order, and users' jobs go to `default`, so any user job
@@ -70,6 +71,34 @@ try:
     MAX_PROFILES = int(os.getenv('GFDC_REFRESH_MAX_PROFILES', '0'))
 except ValueError:
     MAX_PROFILES = 0
+
+# How long a queued walk may run before rq reaps it. The web UI enqueues with
+# 7 days; that is too tight here. Measured 2026-08-17: the walk tracks Geni's
+# rate limit almost exactly -- 100 requests per 10s is 36,000/hour, and it
+# costs about one call per profile, so hours ~= profiles / 36,000. Ronny Engen
+# (215,862) ran ~6 hours; Brigham Young (5,015,865) works out at ~6 days, which
+# leaves almost no margin under a 7-day timeout. 14 days gives the largest tree
+# on the list room to finish.
+try:
+    JOB_TIMEOUT = int(os.getenv('GFDC_REFRESH_JOB_TIMEOUT', str(14 * 24 * 3600)))
+except ValueError:
+    JOB_TIMEOUT = 14 * 24 * 3600
+
+# Don't recount a profile that was counted recently. These walks are enormous
+# -- a full pass over the Top 50 is six to seven weeks of continuous work -- and
+# density numbers on trees this size do not move meaningfully week to week. Per
+# user: twice a year is plenty for the big ones.
+#
+# The gate has to live here, not in the cron schedule: Heroku Scheduler can
+# only fire at a fixed cadence, and what actually matters is when each
+# PARTICULAR profile was last counted. With this, the daily job works steadily
+# through whatever has aged past the threshold and then goes quiet on its own
+# until something ages in again -- so the refresher is busy for one pass, then
+# idle for months, without anyone changing the schedule.
+try:
+    MIN_AGE_DAYS = int(os.getenv('GFDC_REFRESH_MIN_AGE_DAYS', '180'))
+except ValueError:
+    MIN_AGE_DAYS = 180
 
 
 def _queues():
@@ -147,6 +176,26 @@ def main():
                            'recount the giants by hand.')
             return 0
 
+    if MIN_AGE_DAYS > 0:
+        from datetime import datetime, timedelta
+        cutoff = datetime.utcnow() - timedelta(days=MIN_AGE_DAYS)
+        fresh = [r for r in rows if r['computedAt'] and r['computedAt'] > cutoff]
+        rows = [r for r in rows
+                if not r['computedAt'] or r['computedAt'] <= cutoff]
+        if fresh:
+            LOGGER.info('%d profile(s) counted within the last %d days -- not '
+                        'due yet', len(fresh), MIN_AGE_DAYS)
+        if not rows:
+            # Everything is current. Say when that stops being true, so a
+            # silent no-op is still an informative log line.
+            soonest = min(f['computedAt'] for f in fresh)
+            due = soonest + timedelta(days=MIN_AGE_DAYS)
+            nxt = min(fresh, key=lambda f: f['computedAt'])
+            LOGGER.info('Whole Top 50 counted within %d days -- nothing due. '
+                        'Next up: %s, eligible %s.',
+                        MIN_AGE_DAYS, nxt['name'], due.strftime('%Y-%m-%d'))
+            return 0
+
     for r in rows[:5]:
         LOGGER.info('  candidate: %-34s %10s profiles  computedAt=%s',
                     (r['name'] or '')[:34], r['profiles'], r['computedAt'])
@@ -208,10 +257,15 @@ def main():
         return 1
 
     job = queue.enqueue_call(func='app.create_background_job',
-                             args=(params,), timeout=604800)
-    LOGGER.info('Enqueued %s steps for %s (%s) on the %r queue as job %s; '
-                'results email to %s', STEP_COUNT, pick['name'], profile_id,
-                REFRESH_QUEUE, job.id, NOTIFY or '(none)')
+                             args=(params,), timeout=JOB_TIMEOUT)
+    LOGGER.info('Enqueued %s steps for %s (%s, %s profiles ~ %.1fh at the '
+                'current rate limit) on the %r queue as job %s; timeout %.1f '
+                'days; results email to %s',
+                STEP_COUNT, pick['name'], profile_id,
+                f"{pick['profiles']:,}" if pick['profiles'] else '?',
+                (pick['profiles'] or 0) / 36000.0,
+                REFRESH_QUEUE, job.id, JOB_TIMEOUT / 86400.0,
+                NOTIFY or '(none)')
     return 0
 
 
