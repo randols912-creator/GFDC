@@ -44,8 +44,17 @@ except:
     LOGGER.error("redis connection error: %s", sys.exc_info()[0])
 
 if __name__ == '__main__':
-    LOGGER.info("Starting workers")
-    LISTEN = ['high', 'default', 'low']
+    # Which queues this process serves. Was hardcoded to all three, which meant
+    # every dyno competed for every job. Now it can be split so guest
+    # calculations get a worker of their own:
+    #
+    #   worker:    python worker.py high default   <- guest jobs from the web UI
+    #   refresher: python worker.py low            <- the scheduled Top 50 refresh
+    #
+    # With no arguments it still listens on all three, so a single-dyno setup
+    # (and anyone running this locally) behaves exactly as before.
+    LISTEN = sys.argv[1:] or os.getenv('RQ_QUEUES', 'high default low').split()
+    LOGGER.info("Starting workers on: %s", " ".join(LISTEN))
 
     with Connection(CONN):
         # qs = map(Queue, LISTEN) or [Queue()]

@@ -1,2 +1,3 @@
 web: gunicorn -t 300 --bind 0.0.0.0:$PORT app:APP
-worker: python worker.py
+worker: python worker.py high default
+refresher: python worker.py low

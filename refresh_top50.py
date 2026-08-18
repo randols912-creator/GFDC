@@ -40,26 +40,73 @@ from geni_client import get_other_profile
 STEP_COUNT = os.getenv('GFDC_REFRESH_STEPS', '10')
 NOTIFY = os.getenv('GFDC_REFRESH_EMAIL') or os.getenv('GENI_FROM_ADDR', '')
 
+# GFDC is a public tool -- other people start long calculations through the web
+# UI, and there is one worker dyno. This refresh must never make their runs
+# wait, so:
+#
+#   * it enqueues onto the LOW queue. The worker listens on "high, default,
+#     low" in that order, and users' jobs go to `default`, so any user job
+#     sitting in the queue is dequeued before this one regardless of arrival
+#     order.
+#   * it refuses to start when anything at all is pending or running, on any
+#     queue (see queue_busy).
+#   * GFDC_REFRESH_MAX_PROFILES optionally skips profiles above a size, so a
+#     scheduled walk can't be one of the multi-day giants.
+#
+# What none of this can do is preempt: once ANY job is running, later jobs wait
+# behind it, because rq priority decides what to dequeue next, not what to
+# interrupt. So a scheduled walk that has started will still delay a user who
+# arrives mid-walk. The only real fix for that is a second worker dyno; the
+# size cap is the cheap approximation, keeping scheduled walks short enough
+# that the wait is minutes rather than days.
+REFRESH_QUEUE = os.getenv('GFDC_REFRESH_QUEUE', 'low')
+# Set GFDC_REFRESH_REQUIRE_IDLE=0 once a dedicated `refresher` dyno serves the
+# low queue: with its own dyno the refresh no longer blocks anyone in the
+# queue, so waiting for an idle system just wastes days. The one thing still
+# shared even then is Geni's per-app rate limit (100 req/10s on app 220), so
+# a concurrent guest calculation and refresh will each get roughly half.
+REQUIRE_IDLE = os.getenv('GFDC_REFRESH_REQUIRE_IDLE', '1') != '0'
+try:
+    MAX_PROFILES = int(os.getenv('GFDC_REFRESH_MAX_PROFILES', '0'))
+except ValueError:
+    MAX_PROFILES = 0
+
+
+def _queues():
+    """Every queue the worker serves, so 'is anything happening?' is honest."""
+    from rq import Queue
+    names = ['high', 'default', 'low']
+    out = []
+    for n in names:
+        try:
+            out.append(Queue(n, connection=gfdc_app.CONN))
+        except Exception as exc:
+            LOGGER.debug('could not open queue %s (%s)', n, exc)
+    return out or [gfdc_app.Q]
+
 
 def queue_busy():
-    """True if anything is pending or running.
+    """True if anything is pending or running on ANY queue.
 
-    Only one worker dyno exists, so a second enqueue cannot start sooner --
-    it would only queue behind a job that may run for days, and by the time it
-    ran its chosen profile would be a stale choice.
+    Deliberately conservative: a user's calculation may sit on `default` while
+    this checks, and starting alongside it would put both through one worker
+    and one Geni rate limit. Skipping costs a day; interfering costs someone
+    else's run.
     """
+    from rq.registry import StartedJobRegistry
+    pending = running = 0
     try:
-        pending = gfdc_app.Q.count
+        for q in _queues():
+            pending += q.count
+            try:
+                running += StartedJobRegistry(queue=q).count
+            except Exception as exc:
+                LOGGER.debug('no started registry for %s (%s)', q.name, exc)
     except Exception as exc:
-        LOGGER.warning('could not read queue depth (%s); assuming busy', exc)
+        LOGGER.warning('could not read the queues (%s); assuming busy', exc)
         return True
-    running = 0
-    try:
-        from rq.registry import StartedJobRegistry
-        running = StartedJobRegistry(queue=gfdc_app.Q).count
-    except Exception as exc:
-        LOGGER.debug('could not read started registry (%s)', exc)
-    LOGGER.info('queue: %d pending, %d running', pending, running)
+    LOGGER.info('queues (high/default/low): %d pending, %d running',
+                pending, running)
     return bool(pending or running)
 
 
@@ -73,16 +120,32 @@ def main():
 
     gfdc_refresh.ensure_schema()
 
-    if not args.force and not args.dry_run and queue_busy():
+    if not args.force and not args.dry_run and REQUIRE_IDLE and queue_busy():
         LOGGER.info('A calculation is already queued or running -- leaving it '
                     'alone. Nothing to do.')
         return 0
+    if not REQUIRE_IDLE:
+        LOGGER.info('GFDC_REFRESH_REQUIRE_IDLE=0 -- running alongside whatever '
+                    'else is queued (dedicated refresher dyno assumed).')
 
     rows = gfdc_refresh.stalest_top50()
     if not rows:
         LOGGER.error('No Top 50 rows at step %s -- is geni_profiles populated?',
                      gfdc_refresh.TOP50_STEP)
         return 1
+
+    if MAX_PROFILES > 0:
+        too_big = [r for r in rows if (r['profiles'] or 0) > MAX_PROFILES]
+        rows = [r for r in rows if (r['profiles'] or 0) <= MAX_PROFILES]
+        if too_big:
+            LOGGER.info('skipping %d profile(s) over GFDC_REFRESH_MAX_PROFILES '
+                        '=%d: %s', len(too_big), MAX_PROFILES,
+                        ', '.join((t['name'] or '?') for t in too_big[:5]))
+        if not rows:
+            LOGGER.warning('Every Top 50 profile is above the size cap -- '
+                           'nothing to do. Raise GFDC_REFRESH_MAX_PROFILES or '
+                           'recount the giants by hand.')
+            return 0
 
     for r in rows[:5]:
         LOGGER.info('  candidate: %-34s %10s profiles  computedAt=%s',
@@ -124,10 +187,31 @@ def main():
         'includeInTop50': 'on',      # so each step's count is written back
         'step_count': STEP_COUNT,
     }
-    job = gfdc_app.Q.enqueue_call(func='app.create_background_job',
-                                  args=(params,), timeout=604800)
-    LOGGER.info('Enqueued %s steps for %s (%s) as job %s; results email to %s',
-                STEP_COUNT, pick['name'], profile_id, job.id, NOTIFY or '(none)')
+    from rq import Queue, Worker
+    queue = Queue(REFRESH_QUEUE, connection=gfdc_app.CONN)
+
+    # Refuse to enqueue into a queue nothing serves. With a dedicated
+    # `refresher` dyno the refresh lives on its own queue -- which means
+    # scaling that dyno to 0 (or never scaling it up) would leave jobs sitting
+    # in Redis forever with no error anywhere. Better to fail loudly here.
+    try:
+        listeners = Worker.count(queue=queue)
+    except Exception as exc:
+        LOGGER.debug('could not count workers on %r (%s)', REFRESH_QUEUE, exc)
+        listeners = None
+    if listeners == 0 and not args.force:
+        LOGGER.error("No worker is listening on the %r queue, so this job "
+                     "would never run. Either scale the refresher dyno "
+                     "(heroku ps:scale refresher=1) or point this at a served "
+                     "queue (GFDC_REFRESH_QUEUE=default). Nothing enqueued.",
+                     REFRESH_QUEUE)
+        return 1
+
+    job = queue.enqueue_call(func='app.create_background_job',
+                             args=(params,), timeout=604800)
+    LOGGER.info('Enqueued %s steps for %s (%s) on the %r queue as job %s; '
+                'results email to %s', STEP_COUNT, pick['name'], profile_id,
+                REFRESH_QUEUE, job.id, NOTIFY or '(none)')
     return 0
 
 
