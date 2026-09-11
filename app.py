@@ -13,7 +13,7 @@ set_configs()
 from flask import Flask, redirect, request, session, url_for, jsonify, send_file
 import json
 from geni_client import build_auth_url, get_new_token, get_other_profile, \
-    get_profile_details, invalidate_token, search_profiles
+    get_profile_details, invalidate_token, search_profiles, fetch_claimed
 from flask_session import Session
 from db import \
     get_top_profiles, get_top10_profiles, save_geni_profile, get_top50_profiles, setup_db, \
@@ -21,12 +21,26 @@ from db import \
 from mail import sendEmail, send_contact_email
 from rq import Queue
 from worker import CONN, get_redis_url
+import gfdc_refresh
 
 APP = Flask(__name__)
 LOGGER = logging.getLogger(__name__)
 HOST = None
 PORT = None
 Q = Queue(connection=CONN)
+
+# Make sure geni_profiles.claimed (and geni_oauth) exist before anything
+# tries to query them -- otherwise the very first /top50 request after a
+# fresh deploy would hit "Unknown column 'claimed'" until some other entry
+# point (a login, or the next scheduled refresh_top50.py run) happened to
+# call this first. Each ALTER is independently try/except'd inside
+# ensure_schema(), so a momentarily-unreachable DB at boot just logs a
+# warning here rather than crashing app startup.
+try:
+    gfdc_refresh.ensure_schema()
+except Exception:
+    LOGGER.exception('ensure_schema at startup failed (will retry on next '
+                     'login or scheduled run)')
 
 logging.config.dictConfig({
     'version': 1,              
@@ -150,6 +164,7 @@ def process_unique_count(step_count, profile_id, include_in_top50, email):
     visited_set = set()
     local_session = {}
     try:
+        claimed_checked = False
         if int(step_count) < 4:
             for step in range(0, int(step_count)):
                 step_data = get_step_profiles(
@@ -164,6 +179,14 @@ def process_unique_count(step_count, profile_id, include_in_top50, email):
                         local_session['stepProfileName'],
                         local_session['guid'],
                         local_session['stepUserLink'])
+                    if not claimed_checked:
+                        # Once per job, not once per step -- claimed-ness is
+                        # a property of the person, doesn't change as the
+                        # walk goes deeper.
+                        claimed_checked = True
+                        claim = fetch_claimed(session['access_token'], local_session['guid'])
+                        if claim is not None:
+                            gfdc_refresh.stamp_claimed(local_session['guid'], claim)
                 steps.append(step_data)
         else:
             params = {}
@@ -326,6 +349,20 @@ def create_background_job(params):
     data['guid'] = local_session['guid']
     #sendEmail(params['email'], data)
 
+    # Once per job (not per step -- claimed-ness doesn't change as the walk
+    # goes deeper), and only when this profile is actually meant to land on
+    # the Top 50, since that's the only place claimed/unclaimed is shown.
+    if include_in_top50 == 'on' and local_session.get('guid'):
+        try:
+            claim = fetch_claimed(params['access_token'], local_session['guid'])
+            if claim is not None:
+                gfdc_refresh.stamp_claimed(local_session['guid'], claim)
+                LOGGER.info('create_background_job: %s is %s',
+                            local_session['guid'], 'claimed' if claim else 'unclaimed')
+        except Exception:
+            LOGGER.exception('create_background_job: claimed-status check failed '
+                             '(counts are still saved; a later backfill run will catch it)')
+
 def get_step_profiles_thread(access_token, refresh_token, count, visited_set, profile_id, local_session):
     """Get all profiles for a given step when running as a background job"""
     global LOGGER
@@ -437,12 +474,22 @@ def top10():
 
 @APP.route('/top50')
 def top50():
-    """Handle navigation to display top 50 profiles"""
+    """Handle navigation to display top 50 profiles.
+
+    Optional ?claimed=true|false scopes the list to Geni users (claimed
+    profiles) or unclaimed profiles only, each independently ranked and
+    capped at 50 -- same published list as before when the param is
+    omitted. A profile whose claimed status hasn't been checked yet (NULL)
+    only ever shows up in the unscoped list."""
     LOGGER.debug("top50")
     data = {}
     step = request.args.get('stepValue')
+    claimed_param = request.args.get('claimed')
+    claimed = None
+    if claimed_param is not None:
+        claimed = claimed_param.strip().lower() in ('1', 'true', 'yes', 'on')
     try:
-        steps = get_top50_profiles(step)
+        steps = get_top50_profiles(step, claimed=claimed)
         data['top50'] = steps
     except:
         LOGGER.exception('top50 error:')

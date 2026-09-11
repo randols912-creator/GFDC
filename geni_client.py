@@ -33,6 +33,7 @@ IMM_FAM_URL = 'https://www.geni.com/api/?/immediate-family?fields=id,deleted,mer
 INVALIDATE_URL = 'https://www.geni.com/platform/oauth/invalidate_token'
 PUBLIC_URL = 'http://www.geni.com/people/private/{guid}'
 OTHERS_URL = 'https://www.geni.com/api/profile-G{guid}'
+CLAIMED_URL = 'https://www.geni.com/api/profile-G{guid}'
 GENI_API_SLEEP_REMAINING = 50
 GENI_API_SLEEP_LIMIT = 50
 GENI_API_SLEEP_WINDOW = 10
@@ -226,6 +227,49 @@ def get_other_profile(access_token, guid):
     LOGGER.error('get_other_profile giving up after %d attempts (still throttled '
                  'or erroring)', max_attempts)
     return profile_response.text
+
+def fetch_claimed(access_token, guid):
+    """One cheap API call for a profile's claimed/unclaimed status -- no
+    BFS, no walk. Same endpoint & 'claimed' field the Geni Top 10 project's
+    own fetch_claimed() already uses successfully (see geni_top10.py).
+    Claimed means the profile is managed by a live Geni user account;
+    unclaimed means a deceased/historical profile with no such account.
+    Returns True/False, or None if the check itself failed (rate-limited,
+    network error, bad response) -- callers should leave any previously
+    stored value alone on None rather than treat it as False."""
+    LOGGER.debug("fetch_claimed guid=%s", guid)
+    url = CLAIMED_URL.replace('{guid}', str(guid))
+    payload = {'access_token': access_token, 'fields': 'id,name,claimed'}
+    for attempt in range(1, 4):
+        try:
+            resp = requests.get(url, params=payload, timeout=20)
+        except requests.RequestException as e:
+            LOGGER.warning('fetch_claimed network error for %s (attempt %d/3): %s',
+                            guid, attempt, e)
+            time.sleep(5)
+            continue
+        if resp.status_code == 429:
+            wait = int(resp.headers.get('Retry-After', 10))
+            LOGGER.warning('fetch_claimed rate limited (429) for %s; sleeping %ss',
+                            guid, wait)
+            time.sleep(wait)
+            continue
+        if resp.status_code >= 500:
+            LOGGER.warning('fetch_claimed Geni answered %s for %s; retrying',
+                            resp.status_code, guid)
+            time.sleep(10)
+            continue
+        try:
+            data = json.loads(resp.text)
+        except ValueError:
+            LOGGER.warning('fetch_claimed bad JSON for %s: %s', guid, resp.text[:200])
+            return None
+        if isinstance(data, dict) and data.get('error'):
+            LOGGER.warning('fetch_claimed API error for %s: %s', guid, data['error'])
+            return None
+        return bool(data.get('claimed'))
+    LOGGER.error('fetch_claimed giving up on %s after 3 attempts', guid)
+    return None
 
 def get_profile_obj(profile_response):
     """Parse the JSON profile response and build return object"""

@@ -1,0 +1,2038 @@
+{
+  "_comment": "Snapshot of Top 10 list candidates (profile ids), pulled from the Geni Top 10 project's candidates.json + extra_candidates.json on 2026-09-11, for seed_candidates.py to run each through GFDC at least once. Static snapshot, not live-synced -- re-copy by hand if that project's candidate pool changes meaningfully and you want GFDC to pick up the new entries.",
+  "candidates": [
+    {
+      "id": "1257174",
+      "name": "Chris Steyn",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles"
+      ]
+    },
+    {
+      "id": "1268389",
+      "name": "Eglė Jarašiūnaitė",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "1448552",
+      "name": "Henn Sarv",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "1575552",
+      "name": "Marco Gaston Soria",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "1576777",
+      "name": "Lauri Kreen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "1828800",
+      "name": "David Lee Kaleita",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "2347541",
+      "name": "Randy Stebbing",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "2649781",
+      "name": "Pablo Benítez Barreto",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "2786614",
+      "name": "Alastair Honeybun",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "2834724",
+      "name": "Yigal Burstein (Bursztyn)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "288400398200004549",
+      "name": "Itai Jack Meshulam",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "295942075030004833",
+      "name": "Stasys Velykis",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "299204778280001213",
+      "name": "Johann Georg III von Sachsen (Wettin, Albertiner), Kurfürst",
+      "sections": [
+        "Most Complete Tree"
+      ]
+    },
+    {
+      "id": "302121345720004906",
+      "name": "Duarte Pio, duque de Braganca",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "31578",
+      "name": "Margaret (C)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "328739796580004791",
+      "name": "Peter Dutton",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "336113144220013430",
+      "name": "Alisa Sharon (Stern)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "342581977520012136",
+      "name": "Barbara Rubinstein, Ⓒ",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Most Profiles Managed",
+        "Most Profiles Followed"
+      ]
+    },
+    {
+      "id": "346394066470007260",
+      "name": "Ashley Odell",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "350733179530012777",
+      "name": "Malka Mysels (Krausz)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "363677820350011581",
+      "name": "Erica Isabel Howton",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Followed",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "386075761620003978",
+      "name": "Erika Peterson",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "388828896580002996",
+      "name": "Carla Andréa Assenheimer",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Users with Most Followers"
+      ]
+    },
+    {
+      "id": "3920738114990110215",
+      "name": "Rehan Allahwala",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "3999153476440035642",
+      "name": "Ann Fuller (Lackritz)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "4024551478400120999",
+      "name": "Andrzej Hennel",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "4072775",
+      "name": "Jadranka Sunde",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "4086894471640072867",
+      "name": "Diego de Moraes Moreira (C)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "4204182712720074761",
+      "name": "Philip William Richards",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "4297961",
+      "name": "Gastón Camio Irazoqui",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "4404056646910085111",
+      "name": "Tobias Maria Rachor",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Documents Added"
+      ]
+    },
+    {
+      "id": "4518296402650077676",
+      "name": "Birgit Rachor",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "4560155096930045739",
+      "name": "June Barnes",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles"
+      ]
+    },
+    {
+      "id": "4867845159390046591",
+      "name": "Renee Steinig (Stern)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "4916839043630024699",
+      "name": "Ralph Angus+ George Wood Salomon",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "5036766379090050588",
+      "name": "Reijo Mitro Savola, Geni Curator",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Most Profiles Invited",
+        "Most Family Tree Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "5098603059080070794",
+      "name": "Shmuel Aharon Kam",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "5127797396570082934",
+      "name": "Lars Bertel Söderström",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Users with Most Followers",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "5206017453450089696",
+      "name": "Carlos Bunge",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "5277343680110074074",
+      "name": "Günther Kipp",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "5293715035170060525",
+      "name": "Maximilian-IV-I-Joseph-Wittelsbach",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "5319372978170089688",
+      "name": "Franz Joseph I, Emperor of Austria",
+      "sections": [
+        "Most Complete Tree",
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "5427310443420075357",
+      "name": "Chad Bouldin",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "5534955112860040839",
+      "name": "Benjamin Schoenbrun",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "5574411791620044686",
+      "name": "Sherry Lynne Houy",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "5685693775440034593",
+      "name": "Jeffrey Roland Gentes",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "6000000000021963468",
+      "name": "Daniel Ira Bodenheimer",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000032650885",
+      "name": "Tammy Swingle Tucker",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "6000000000045811770",
+      "name": "Richard Wilson",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000048323514",
+      "name": "Brendan Molloy",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000176568604",
+      "name": "Donovan Paul Penaluna",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000223427226",
+      "name": "Alon Lischinsky",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000307256699",
+      "name": "Arnulf, Prinz von Bayern",
+      "sections": [
+        "Most Complete Tree"
+      ]
+    },
+    {
+      "id": "6000000000350936287",
+      "name": "Franz Karl Joseph of Austria, Habsburg Archduke of Austria",
+      "sections": [
+        "Most Complete Tree"
+      ]
+    },
+    {
+      "id": "6000000000476516461",
+      "name": "Dr. Babak Ourian",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "6000000000602452166",
+      "name": "Pablo Romero",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Most Profiles Managed",
+        "Most Profiles Followed"
+      ]
+    },
+    {
+      "id": "6000000000617824614",
+      "name": "Karol Antoni Wodyński",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000658463610",
+      "name": "James Wile",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Most Profiles Managed",
+        "Most Profiles Followed"
+      ]
+    },
+    {
+      "id": "6000000000662256121",
+      "name": "Ana Maria Toledo Rodrigues",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000772743473",
+      "name": "Max Gerald Heffler",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "6000000000878300315",
+      "name": "Jessica Marie German",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000932953668",
+      "name": "Faustine Gail Humphris",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000000972106505",
+      "name": "Remi Pedersen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000001004074517",
+      "name": "Oton Zagorc",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000001285920008",
+      "name": "Marsha Gail (Kamish) Veazey",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Most Profiles Managed",
+        "Most Photos Uploaded",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "6000000001340922477",
+      "name": "Muammar Ishak",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000001519387626",
+      "name": "Linda Zimmerman",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "6000000001597596417",
+      "name": "Peter Rohel",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Followed"
+      ]
+    },
+    {
+      "id": "6000000001608420976",
+      "name": "Anne Kukermann",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000001654183919",
+      "name": "Tamás Flinn Caldwell-Gilbert",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000001679588156",
+      "name": "Jaime Ross",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000001724518898",
+      "name": "Pamela Susan  Wilson",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "6000000001746599511",
+      "name": "Luis Enrique Echeverria Dominguez",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles",
+        "Most Collaborators",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000001790875836",
+      "name": "Daniel Jacobus Botes",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles"
+      ]
+    },
+    {
+      "id": "6000000001915020024",
+      "name": "🧬 Kristina Lee Stewart (Hewitt)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002005611754",
+      "name": "Myrna Huthmacher",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002118360716",
+      "name": "Jeffrey Michael Maynard",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002188429277",
+      "name": "Elia, Luca di Parma",
+      "sections": [
+        "Most Complete Tree"
+      ]
+    },
+    {
+      "id": "6000000002223072630",
+      "name": "Kevin Lawrence Hanit",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Managed"
+      ]
+    },
+    {
+      "id": "6000000002228378382",
+      "name": "Victar Mas",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002298207256",
+      "name": "Natalija",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002320022201",
+      "name": "Lara",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002343680662",
+      "name": "Maria Edmonds-Zediker",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002584220461",
+      "name": "Pam Karp (Jacobson)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002717693081",
+      "name": "Alfred Alois, Prinz von Liechtenstein",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000002755038698",
+      "name": "Mona San Diego Magno",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002764082210",
+      "name": "Eric Randol Schoenberg, Geni Curator",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Managed"
+      ]
+    },
+    {
+      "id": "6000000002765605079",
+      "name": "Debbie McCauley",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002815171228",
+      "name": "Peter Lowe",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002844163376",
+      "name": "Wolf-Erich Eckstein",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002867533390",
+      "name": "Robert Bruce Hanscom",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000002960326411",
+      "name": "Henri de Nassau, Grand Duke of Luxembourg",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000002994669409",
+      "name": "Bo-Arne Östborg",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003087133107",
+      "name": "Janet Palo-Jackson (Conrow)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "6000000003120624112",
+      "name": "Lúcia Pilla",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003145501780",
+      "name": "Jason Scott Wills",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003243184323",
+      "name": "Agnes Princess Of Hesse-Kassel",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000003252472253",
+      "name": "Mia Järvinen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "6000000003276428962",
+      "name": "Willem-Alexander van Oranje Nassau",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000003299471181",
+      "name": "Jennifer Dongvillo Archibald",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003318879837",
+      "name": "Peter Trefilov",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003481510305",
+      "name": "Catherine Serafina Ishimoticha (Pinder)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003483639500",
+      "name": "Philip Decker",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003496914092",
+      "name": "Hatte Anne Blejer (Rubenstein)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Users with Most Followers"
+      ]
+    },
+    {
+      "id": "6000000003517380061",
+      "name": "Maxwell Charles Preston",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003621399863",
+      "name": "Annemarie Healy Kalishoek",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003637919062",
+      "name": "Lynette",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003677853927",
+      "name": "Raphael Ronald Kornfeld",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003688671866",
+      "name": "Itai Hermelin",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003703300491",
+      "name": "Richard Eric Dickinson (Kuhlmey), Geni Curator",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "6000000003745890070",
+      "name": "Howard Lee Eichenwald",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003838430344",
+      "name": "Heather Fachet Bond",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003866889992",
+      "name": "Franz Ferdinand von Österreich Este (Habsburg)",
+      "sections": [
+        "Most Complete Tree"
+      ]
+    },
+    {
+      "id": "6000000003985852999",
+      "name": "Maria Bakay",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000003987799076",
+      "name": "Harald Alvestrand",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000004009015116",
+      "name": "Anchit Gupta",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000004058070651",
+      "name": "Judith Berlowitz",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000004074525216",
+      "name": "Geoffrey David Trowbridge",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000004120107775",
+      "name": "Sophie of Bavaria, Archduchess of Austria",
+      "sections": [
+        "Most Complete Tree",
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000004120140055",
+      "name": "Friederike von Baden-Durlach",
+      "sections": [
+        "Most Complete Tree"
+      ]
+    },
+    {
+      "id": "6000000004122530919",
+      "name": "Saulius Šakarvis",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000004159887607",
+      "name": "Ann Vermeulen (Ramsey)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Most Profiles Managed",
+        "Most Profiles Followed"
+      ]
+    },
+    {
+      "id": "6000000004632811290",
+      "name": "Jarrett Phillip Ross",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000004877920610",
+      "name": "FARKAS Mihály László",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000005293102001",
+      "name": "Nivea Nunes Dias",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000005382516001",
+      "name": "Robert Patrik Johannes Holmberg",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000005623883524",
+      "name": "Kenneth Kwame Welsh, (C)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000005776584613",
+      "name": "Sharon Lee Doubell",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Users with Most Followers"
+      ]
+    },
+    {
+      "id": "6000000005790470652",
+      "name": "Kenneth Ekman",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000006079495002",
+      "name": "Yoav Lahad (part time)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000006210626050",
+      "name": "Gustavo D. Latorre",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000006270092187",
+      "name": "William Harry Chapman, Jr",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000006277445807",
+      "name": "Maximilian Eugen, Erzherzog von Österreich",
+      "sections": [
+        "Most Complete Tree",
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000006359136133",
+      "name": "Mohamad Habrul Ulum Othman",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000006443885153",
+      "name": "Carole Ann Pomeroy (Erickson)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000006570476110",
+      "name": "Eleonore Magdalena of Neuburg",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000006727749316",
+      "name": "Johann Georg II von Sachen (Wettin, Albertiner), Kurfurst",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000006727849990",
+      "name": "Erdmann August Prince Of Brandenburg-Bayreuth",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000006775477472",
+      "name": "Otto Pohla",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000006860516286",
+      "name": "Samuel Cyril Louis Gaston Austin - Le Maux (Austin)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000006931095314",
+      "name": "Jaanus Luuse",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000007060451101",
+      "name": "Jaak Tulp",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000007329627422",
+      "name": "Albrecht, Herzog von Bayern",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000007388900162",
+      "name": "Ingrid Meissner",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000007848627673",
+      "name": "Kristjan-Koort Tallo",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000007993691829",
+      "name": "Colonel (R) Seth Lawrence Morgulas",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000008105806104",
+      "name": "Ivo Kivinurk",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000008110515723",
+      "name": "Liivi Murumets",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000008204509067",
+      "name": "Erkki A Tikkanen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000008285731690",
+      "name": "Tarmo Tohver",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "6000000008429635483",
+      "name": "Georg, Herzog von Hohenberg",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000008718547323",
+      "name": "Viktorija Ruškulienė Ⓒ",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000008775148758",
+      "name": "Jean-François Antoine",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000008901415076",
+      "name": "Vytenis Bagdonas",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000008985434488",
+      "name": "Emīls Brigmanis",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000009309308598",
+      "name": "Ben M. Angel",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Followed",
+        "Users with Most Followers"
+      ]
+    },
+    {
+      "id": "6000000009645710729",
+      "name": "Carl, Herzog von Württemberg",
+      "sections": [
+        "Most Complete Tree"
+      ]
+    },
+    {
+      "id": "6000000009738088205",
+      "name": "Denis Volkov",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000009765734452",
+      "name": "刘杳 Liu Yao",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000009895495819",
+      "name": "George Homs",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Users with Most Followers"
+      ]
+    },
+    {
+      "id": "6000000009926221334",
+      "name": "Sir Eli Khalil Alhadad, Abou Elyas",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000009948875605",
+      "name": "Emil Eskenazy Lewinger (c)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000010328103795",
+      "name": "Gopala Krishnaiah Pemmaraju",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "6000000010360521227",
+      "name": "Ivanka",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000010483233252",
+      "name": "Milivoj",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000010591113048",
+      "name": "Simon Bernard Goodman",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000010772796562",
+      "name": "Anne Brannen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000010966921275",
+      "name": "Alexander Benjamin Moes",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000011067425349",
+      "name": "Richard John Sparkman",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000011221847316",
+      "name": "AR Bertil Andersson",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000011393026052",
+      "name": "David",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added"
+      ]
+    },
+    {
+      "id": "6000000011723352447",
+      "name": "Dan H. Cornett",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "6000000011836498873",
+      "name": "Lea Herbst",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000011843361560",
+      "name": "Agnes Valgiste (Liesment)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Collaborators",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000012005752716",
+      "name": "Byron Jason Whitesides",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "6000000012074319577",
+      "name": "Andrea Rogers-Valen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000012167529580",
+      "name": "Jules Fausto Mendonça de Sá",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Most Profiles Managed",
+        "Most Profiles Followed",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000012490527733",
+      "name": "Mike Zavurov",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000012557914819",
+      "name": "Job Waterreus",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Managed",
+        "Most Profiles Followed"
+      ]
+    },
+    {
+      "id": "6000000012781522430",
+      "name": "Linda Kathleen Thompson, (c)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000012791818866",
+      "name": "Domagoj Franic",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000012935461444",
+      "name": "Charlene Newport",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000013007452812",
+      "name": "Alexander Armenis",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited",
+        "Most Family Tree Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000013706545166",
+      "name": "Linda Sirsnina",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "6000000013707820287",
+      "name": "Nathan Luke Cowdrey",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000013963660716",
+      "name": "Klarenz Kristoffer Magdaluyo Quiñones",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000014764753766",
+      "name": "Matthew Cox",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000015180435062",
+      "name": "Wilhelm Ludwig von Kirchberg zu Sayn-Hachenburg Wittgenstein Farnroda",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000015262342228",
+      "name": "Robert, Erzherzog von Österreich",
+      "sections": [
+        "Most Complete Tree",
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000015376833288",
+      "name": "Donna Marie",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000015753898027",
+      "name": "John Dale Kessel",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Managed",
+        "Users with Most Followers"
+      ]
+    },
+    {
+      "id": "6000000015894599621",
+      "name": "Peter Absolon",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000016236821745",
+      "name": "Georg Christian, Prinz von Lobkowicz",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000016312646971",
+      "name": "Alajos Gyorgy Rudolf, Prinz Esterhazy von Galantha",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000016336274955",
+      "name": "Wendi Rachel Newman",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000016511806324",
+      "name": "Marie Boshoff",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles"
+      ]
+    },
+    {
+      "id": "6000000016564223726",
+      "name": "Frederick Allen Barton",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000016801630119",
+      "name": "Ana",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000017004716093",
+      "name": "Eerik Yrjölä",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000017027245137",
+      "name": "Eleonore Maria J.L. Leiningen-Westerburg-Rixingen-Oberbronn",
+      "sections": [
+        "Highest Number of Different Ancestors in 10 Generations"
+      ]
+    },
+    {
+      "id": "6000000019182195571",
+      "name": "Michael Murray van Beuren",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Highest Number of Different Ancestors"
+      ]
+    },
+    {
+      "id": "6000000019292605468",
+      "name": "Arie Riemer Dirk van Bergen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000020221967418",
+      "name": "Ričardas Ivanauskas",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000020248377721",
+      "name": "Jacob Marrache",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000020760557713",
+      "name": "Drummond Corrie",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000020821096909",
+      "name": "Kimberly Louise Fraser",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000021010310497",
+      "name": "Jim Henderson",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000021719619150",
+      "name": "Sharyn \"Shaz\" Proctor",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000022182177163",
+      "name": "Thomas Föhl",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000022444938416",
+      "name": "Tommaso Valarani",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Most Profiles Managed",
+        "Most Profiles Followed",
+        "Most Photos Uploaded"
+      ]
+    },
+    {
+      "id": "6000000024680146054",
+      "name": "Noelle Ochotny, PhD",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000024680422828",
+      "name": "Mario Morel, CD, rmc, Capt (Ret'd)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000024861623035",
+      "name": "Ozren Čulić Viskota Žava",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000026748873110",
+      "name": "Dalton Holland Baptista",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000026921494870",
+      "name": "Riitta Anneli Leinonen, Geni curator",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000030923645785",
+      "name": "Jan Fertig",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000035916211907",
+      "name": "Aviad Ben Izhak",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "6000000036349779446",
+      "name": "Leonid Evgenievich Semenov",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000037283255160",
+      "name": "Leanne M",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000037538543777",
+      "name": "Juha Ville Mustonen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Added",
+        "Users with Most Followers",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "6000000037887453779",
+      "name": "Hannele Eeva Eliisa Naatula (Siltala)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Collaborators"
+      ]
+    },
+    {
+      "id": "6000000038788047888",
+      "name": "Samuel Royde",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Claimed Family"
+      ]
+    },
+    {
+      "id": "6000000038906608966",
+      "name": "B Flanders (YRZ30474)",
+      "sections": [
+        "Most Photos Uploaded"
+      ]
+    },
+    {
+      "id": "6000000040230358862",
+      "name": "Atalya Buskila Levy (Buskila)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000040363953660",
+      "name": "Steven Ferry",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000040852576001",
+      "name": "Herman Booysen",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles"
+      ]
+    },
+    {
+      "id": "6000000048568703847",
+      "name": "Dr. rer. nat. Tomáš Kitlar",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000049230823857",
+      "name": "Almantas",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000057523088925",
+      "name": "Osvaldas Guokas",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000060351032821",
+      "name": "André Grové",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Family Tree Profiles",
+        "Most Documents Added"
+      ]
+    },
+    {
+      "id": "6000000060894297913",
+      "name": "Ana Margarida Rocha Reis",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000064492636902",
+      "name": "Aleksi Kristian Vahtokari",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000070498006875",
+      "name": "Stephen Joseph Nauyokas",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Documents Added",
+        "Most Updates (Last 12 Months)"
+      ]
+    },
+    {
+      "id": "6000000079053246996",
+      "name": "Ariel Yakubov",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000079427730595",
+      "name": "Dr Maria Cecille Lim Cayetano Angelia",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000080409717900",
+      "name": "Dr Sharon Horsky",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000082502073398",
+      "name": "Ingrida Lamadrid",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Documents Added"
+      ]
+    },
+    {
+      "id": "6000000087173573030",
+      "name": "Andrew Santiago Miranda",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000094113516391",
+      "name": "Raquel Toledano",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000110996774839",
+      "name": "Daniel Paul Stepel, (Geni Curator)",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "6000000122501185856",
+      "name": "Marko Erić",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles",
+        "Most Profiles Invited"
+      ]
+    },
+    {
+      "id": "6000000205194695853",
+      "name": "Issam Al-Halabi",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "763402",
+      "name": "Paul Doré",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    },
+    {
+      "id": "939006",
+      "name": "Terry Jackson",
+      "sections": [
+        "Most Complete Tree - Claimed Profiles",
+        "Highest Number of Different Ancestors in 10 Generations - Claimed Profiles"
+      ]
+    }
+  ]
+}

@@ -55,6 +55,11 @@ class GeniProfile(Model):
     profileLink = CharField()
     step = IntegerField()
     profiles = IntegerField()
+    # NULL = not yet checked, 0 = unclaimed, 1 = claimed (a live Geni user
+    # account manages the profile). Column itself is added lazily by
+    # gfdc_refresh.ensure_schema(); declared here too so peewee queries
+    # (get_top50_profiles' claimed= filter) know the field exists.
+    claimed = IntegerField(null=True)
 
     class Meta(object):
         """model meta information"""
@@ -194,20 +199,31 @@ def get_top10_profiles():
     data['top50'] = steps
     return steps
 
-def get_top50_profiles(step_count):
-    """retrieve the top 50 profiles from the datbase"""
-    LOGGER.debug("get_top50_profiles")
+def get_top50_profiles(step_count, claimed=None):
+    """retrieve the top 50 profiles from the database at a given step.
+
+    claimed=None (default): unchanged original behavior, every profile at
+    this step regardless of claimed status. claimed=True/False: scope to
+    just Geni users / just unclaimed profiles -- each ranked and limited to
+    STEP_THRESHOLD independently, so e.g. the claimed list's #1 need not be
+    the #1 overall. A profile whose claimed status hasn't been checked yet
+    (NULL) appears in the unscoped list only, same as before this existed."""
+    LOGGER.debug("get_top50_profiles claimed=%s", claimed)
     steps = []
     try:
         MY_DB.connect(reuse_if_open=True)
-        rows = GeniProfile.select().where(GeniProfile.step == step_count).order_by(GeniProfile.profiles.desc()).limit(STEP_THRESHOLD)
+        query = GeniProfile.select().where(GeniProfile.step == step_count)
+        if claimed is not None:
+            query = query.where(GeniProfile.claimed == (1 if claimed else 0))
+        rows = query.order_by(GeniProfile.profiles.desc()).limit(STEP_THRESHOLD)
         for row in rows:
             steps.append({
                 'profileId':row.profileId,
                 'profileName':row.profileName,
                 'profileLink':row.profileLink,
                 'step':row.step,
-                'profiles':row.profiles
+                'profiles':row.profiles,
+                'claimed':row.claimed
             })
     except DoesNotExist:
         LOGGER.exception("get top 50 error: ")

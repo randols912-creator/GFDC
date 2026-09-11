@@ -2,6 +2,11 @@
 	<div style='text-align: center;margin-bottom: 25px;'>
 	        <h5 style='margin:0;'>Top 50 Profiles</h5>
 	        <p>(Please click on any step for top 50 profiles)</p>
+	        <div class='btn-group' role='group'>
+	        	<button type='button' class='btn btn-sm' ng-class="{'btn-primary': scopeFilter=='all', 'btn-default': scopeFilter!='all'}" ng-click="setScope('all')">All</button>
+	        	<button type='button' class='btn btn-sm' ng-class="{'btn-primary': scopeFilter=='claimed', 'btn-default': scopeFilter!='claimed'}" ng-click="setScope('claimed')">Geni Users</button>
+	        	<button type='button' class='btn btn-sm' ng-class="{'btn-primary': scopeFilter=='unclaimed', 'btn-default': scopeFilter!='unclaimed'}" ng-click="setScope('unclaimed')">Unclaimed</button>
+	        </div>
 	</div>
     <div class='col-xs-12 rowcol-xs-12'>
     	<div class='col-xs-2'>
@@ -20,6 +25,7 @@
 	                        <th>Profile Id</th>
 	                        <th>Step</th>
 	                        <th>Profiles</th>
+	                        <th ng-if="scopeFilter=='all'">Status</th>
 	                    </tr>
 	                </thead>
 	                <tbody>
@@ -28,6 +34,7 @@
 	                        <td><a href='{{i.profileLink}}' style='color: #609' target='_blank'>{{i.profileId}}</a></td>
 	                        <td>{{i.step}}</td>
 	                        <td>{{i.profiles}}</td>
+	                        <td ng-if="scopeFilter=='all'">{{i.claimed === 1 ? 'Geni user' : (i.claimed === 0 ? 'Unclaimed' : '?')}}</td>
 	                    </tr>
 	                </tbody>
 	            </table>

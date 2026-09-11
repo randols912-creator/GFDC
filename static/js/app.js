@@ -216,6 +216,7 @@ var Top50Controller = function($scope,$rootScope, $http){
     var getTopTenSteps =  '../../static/js/steps.js';
     callServerGETAPI(httpPromise, getTopTenSteps, showTop10Steps);
     $scope.selected = -1;
+    $scope.scopeFilter = 'all';    // 'all' | 'claimed' | 'unclaimed'
     function showTop10Steps(data){
         $scope.top10Steps = data.steps;
         //stepProfileData
@@ -223,11 +224,24 @@ var Top50Controller = function($scope,$rootScope, $http){
 
     $scope.showProfileData = function(stepValue, index){
         var getProfilesForStep = '/top50?stepValue='+stepValue;
+        if ($scope.scopeFilter === 'claimed') {
+            getProfilesForStep += '&claimed=true';
+        } else if ($scope.scopeFilter === 'unclaimed') {
+            getProfilesForStep += '&claimed=false';
+        }
         $scope.selected = index;
         console.log(index);
         $scope.loading = true;
         $('.loadingMask').show();
         callServerGETAPI(httpPromise, getProfilesForStep, me.showProfilesData);
+    };
+
+    $scope.setScope = function(scope){
+        $scope.scopeFilter = scope;
+        // Re-fetch whatever step is currently showing, in the new scope.
+        if ($scope.selected > -1 && $scope.top10Steps && $scope.top10Steps[$scope.selected]) {
+            $scope.showProfileData($scope.top10Steps[$scope.selected].stepValue, $scope.selected);
+        }
     };
 
     me.showProfilesData = function(data){

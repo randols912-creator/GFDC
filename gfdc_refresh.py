@@ -63,6 +63,61 @@ def _now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
+class CuratorRoster(Model):
+    """Cache of the Geni Curators project's (id 9960) collaborator list, so
+    seed_candidates.py doesn't have to re-page through potentially hundreds
+    of API calls every time it runs -- Heroku's filesystem is ephemeral, so
+    this can't just be a local JSON cache like the Geni Top 10 project uses;
+    it has to live in the DB. Refreshed only when empty or when
+    seed_candidates.py --refresh-roster is passed by hand."""
+    guid = CharField(primary_key=True)
+    name = CharField(null=True)
+    fetchedAt = DateTimeField(null=True)
+
+    class Meta(object):
+        database = MY_DB
+        db_table = 'curator_roster'
+
+
+def ensure_curator_roster_table():
+    try:
+        MY_DB.connect(reuse_if_open=True)
+        MY_DB.create_tables([CuratorRoster], safe=True)
+    except Exception as exc:
+        LOGGER.warning('ensure_curator_roster_table failed (%s)', exc)
+
+
+def cached_curator_roster():
+    """{guid: name} from the cache, or {} if never fetched."""
+    ensure_curator_roster_table()
+    try:
+        MY_DB.connect(reuse_if_open=True)
+        return {row.guid: row.name for row in CuratorRoster.select()}
+    except Exception:
+        LOGGER.exception('cached_curator_roster failed')
+        return {}
+
+
+def save_curator_roster(roster):
+    """roster: {guid: name}. Replaces the whole cache in one transaction."""
+    ensure_curator_roster_table()
+    now = _now()
+    try:
+        MY_DB.connect(reuse_if_open=True)
+        with MY_DB.atomic():
+            CuratorRoster.delete().execute()
+            rows = [{'guid': g, 'name': n, 'fetchedAt': now}
+                    for g, n in roster.items()]
+            if rows:
+                # peewee's insert_many batches this efficiently; chunk just
+                # in case the roster is large.
+                for i in range(0, len(rows), 500):
+                    CuratorRoster.insert_many(rows[i:i + 500]).execute()
+        LOGGER.info('save_curator_roster: cached %d curator(s)', len(roster))
+    except Exception:
+        LOGGER.exception('save_curator_roster failed')
+
+
 def active_app_label():
     """Which Geni app new logins are using, per GENI_USE_LEGACY_APP."""
     return 'legacy-220' if os.getenv('GENI_USE_LEGACY_APP') == '1' else 'app-2134'
@@ -83,6 +138,16 @@ def ensure_schema():
         LOGGER.info('ensure_schema: added geni_profiles.computedAt')
     except Exception as exc:
         LOGGER.debug('ensure_schema: computedAt already present (%s)', exc)
+    try:
+        # NULL = not yet checked, 0 = unclaimed (no managing Geni user
+        # account -- a deceased/historical profile), 1 = claimed. Not
+        # step-scoped: claimed-ness is a property of the person, so every
+        # step row for a profileId gets the same value (see stamp_claimed).
+        MY_DB.execute_sql(
+            'ALTER TABLE geni_profiles ADD COLUMN claimed TINYINT NULL')
+        LOGGER.info('ensure_schema: added geni_profiles.claimed')
+    except Exception as exc:
+        LOGGER.debug('ensure_schema: claimed already present (%s)', exc)
 
 
 def save_oauth(access_token, refresh_token):
@@ -143,6 +208,22 @@ def stamp_computed_at(guid, step):
             'WHERE profileId = %s AND step = %s', (_now(), str(guid), step))
     except Exception as exc:
         LOGGER.debug('stamp_computed_at skipped (%s)', exc)
+
+
+def stamp_claimed(guid, claimed):
+    """Record a profile's claimed/unclaimed status (from Geni's own
+    `claimed` API field -- see geni_client.fetch_claimed) across every
+    geni_profiles row for that guid, whatever step each was counted at.
+    `claimed` should be True/False; callers should simply not call this at
+    all when the fetch itself failed (fetch_claimed returns None then),
+    rather than pass through an unknown value."""
+    try:
+        MY_DB.connect(reuse_if_open=True)
+        MY_DB.execute_sql(
+            'UPDATE geni_profiles SET claimed = %s WHERE profileId = %s',
+            (1 if claimed else 0, str(guid)))
+    except Exception as exc:
+        LOGGER.debug('stamp_claimed skipped (%s)', exc)
 
 
 # runDate is NOT used for staleness. Nothing in the current codebase writes it
