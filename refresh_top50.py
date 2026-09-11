@@ -100,6 +100,17 @@ try:
 except ValueError:
     MIN_AGE_DAYS = 180
 
+# 2026-09-11: the schoenberg.com geni_top10.py --density crawler already
+# recounts stale Top 50 candidates nightly and pushes results straight into
+# this same geni_profiles table via POST /record_count -- silently, no
+# email. This script was written under the (mistaken, at the time correct)
+# belief that nothing was doing that anymore; now that both run, they
+# duplicate work against the same shared Geni rate limit, and this one's
+# per-step emails were the surprise "gfdc run" notifications. Disabled by
+# default until/unless the schoenberg.com crawler stops covering this.
+# Set GFDC_REFRESH_ENABLED=1 to turn it back on.
+ENABLED = os.getenv('GFDC_REFRESH_ENABLED', '0') != '0'
+
 
 def _queues():
     """Every queue the worker serves, so 'is anything happening?' is honest."""
@@ -146,6 +157,11 @@ def main():
     ap.add_argument('--force', action='store_true',
                     help='enqueue even when the queue is not idle')
     args = ap.parse_args()
+
+    if not ENABLED and not (args.force or args.dry_run):
+        LOGGER.info('GFDC_REFRESH_ENABLED=0 -- disabled (see comment near '
+                    'ENABLED above). Nothing to do.')
+        return 0
 
     gfdc_refresh.ensure_schema()
 

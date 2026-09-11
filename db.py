@@ -183,7 +183,13 @@ def get_top10_profiles():
                 last_count = row.profiles
     except DoesNotExist:
         LOGGER.exception("get top10 exception:")
-    MY_DB.close()
+    except Exception:
+        # Same stale-connection failure mode as get_top50_profiles -- see
+        # the comment there. Log it and always close so the next request
+        # gets a fresh connection instead of a wedged one.
+        LOGGER.exception("get_top10_profiles general error: ")
+    finally:
+        MY_DB.close()
     data = {}
     data['top50'] = steps
     return steps
@@ -205,10 +211,17 @@ def get_top50_profiles(step_count):
             })
     except DoesNotExist:
         LOGGER.exception("get top 50 error: ")
-    MY_DB.close()
-    #data = {}
-    #data['top50'] = steps
-    #print data
+    except Exception:
+        # A stale/dead connection (e.g. MySQL idle-disconnect) used to raise
+        # something other than DoesNotExist here, skip MY_DB.close() below
+        # (since it sat outside the try/except), and get swallowed by the
+        # route's bare except -- returning {} with no 'top50' key at all, so
+        # the page looked empty until a second click happened to get a fresh
+        # connection. Logging it and always closing below fixes both the
+        # silent failure and the connection getting stuck half-open.
+        LOGGER.exception("get_top50_profiles general error: ")
+    finally:
+        MY_DB.close()
     return steps
 
 def get_top50_step_profiles(step):
