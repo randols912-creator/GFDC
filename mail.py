@@ -76,3 +76,23 @@ def prepateHtml(data):
     htmlContent = htmlContent + 'Thank you,<br/>GFDC</body></html>'
     return htmlContent
 
+
+
+def send_alert(toMail, subject, text):
+    """Plain-text notice for things going wrong (e.g. a walk that stopped).
+    Never raises: an alert that cannot be sent is logged and dropped."""
+    if not toMail:
+        LOGGER.warning('send_alert: no recipient; not sent: %s', subject)
+        return None
+    try:
+        ret = requests.post(mailgun_url, verify=certifi.where(),
+                            auth=("api", mailgun_api_key),
+                            data={"from": from_addr, "to": toMail,
+                                  "subject": subject, "text": text},
+                            timeout=30)
+        if ret.status_code != requests.codes.ok:
+            LOGGER.error('alert email failed %d: %s', ret.status_code, ret.text)
+        return ret
+    except Exception:
+        LOGGER.exception('alert email could not be sent: %s', subject)
+        return None

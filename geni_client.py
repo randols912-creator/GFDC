@@ -80,9 +80,11 @@ def get_refreshed_token(refresh_token):
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token
     }
-    token_response = requests.get(TOKEN_URL, params=params)
+    token_response = requests.get(TOKEN_URL, params=params, timeout=(15, 60))
     token_response = token_response.text
-    LOGGER.info('get_refreshed_token returns %s', token_response)
+    # Never log the tokens themselves -- Heroku logs are not a secret store.
+    LOGGER.info('get_refreshed_token: got %d-byte response (%s)', len(token_response),
+                'ok' if '"access_token"' in token_response else 'NO access_token')
     return token_response
 
 def get_profile_details(access_token, refresh_token, profile_id, current_step):
@@ -102,13 +104,22 @@ def get_profile_details(access_token, refresh_token, profile_id, current_step):
     api_error_attempts = 0
     max_api_error_attempts = 5  # bounded retry so a genuinely denied profile
                                 # still fails eventually instead of looping forever
+    # October 2026: every other failure used to retry forever with no network
+    # timeout, so one dead connection or one odd response could freeze a
+    # multi-day walk without a word. Now: a timeout on every request, backoff,
+    # and a cap, after which the error is raised so the job reports it.
+    other_errors = 0
+    max_other_errors = int(os.getenv('GENI_MAX_TRANSIENT_ERRORS', '30'))
+    throttled = 0
+    max_throttled = int(os.getenv('GENI_MAX_THROTTLE_RETRIES', '120'))
+    oauth_refreshes = 0
     while continue_flag:
         try:
             if not profile_id:
-                profile_response = requests.get(PROF_URL, params=payload)
+                profile_response = requests.get(PROF_URL, params=payload, timeout=(15, 60))
             else:
                 url = IMM_FAM_URL.replace('?', profile_id, 1)
-                profile_response = requests.get(url, params=payload)
+                profile_response = requests.get(url, params=payload, timeout=(15, 60))
             LOGGER.debug("Header X-API-Rate-Limit: %s", profile_response.headers.get('X-API-Rate-Limit'))
             LOGGER.debug("Header X-API-Rate-Remaining: %s", profile_response.headers.get('X-API-Rate-Remaining'))
             LOGGER.debug("Header X-API-Rate-Window: %s", profile_response.headers.get('X-API-Rate-Window'))
@@ -126,6 +137,19 @@ def get_profile_details(access_token, refresh_token, profile_id, current_step):
                 _RATE_LOGGED = (GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW)
                 LOGGER.info('Geni API rate limit: %d requests per %ds window',
                             GENI_API_SLEEP_LIMIT, GENI_API_SLEEP_WINDOW)
+            if profile_response.status_code == 429:
+                # Plain throttling: wait it out without spending the
+                # "is this a real denial?" attempts below.
+                throttled += 1
+                if throttled > max_throttled:
+                    raise RuntimeError('Geni kept answering 429 (rate limited) for profile %s'
+                                       % profile_id)
+                try:
+                    wait = int(profile_response.headers.get('Retry-After') or GENI_API_SLEEP_WINDOW)
+                except ValueError:
+                    wait = GENI_API_SLEEP_WINDOW
+                time.sleep(max(1, wait))
+                continue
             profile_object = get_profile_obj(profile_response.text)
             # Anything other than a clean SUCCESS here — a 200 whose body is a
             # Geni API error (not an OAuth error), or a body that didn't parse
@@ -138,26 +162,50 @@ def get_profile_details(access_token, refresh_token, profile_id, current_step):
                     and api_error_attempts < max_api_error_attempts:
                 api_error_attempts += 1
                 LOGGER.warning('get_profile_details non-success response for '
-                                'profile %s (status=%r, attempt %d/%d) - '
+                                'profile %s (status=%r, HTTP %s, attempt %d/%d) - '
                                 'retrying in %ds in case this is rate-limit '
                                 'throttling rather than a real denial',
                                 profile_id, profile_object.get('status'),
+                                profile_response.status_code,
                                 api_error_attempts, max_api_error_attempts,
                                 GENI_API_SLEEP_WINDOW)
                 time.sleep(GENI_API_SLEEP_WINDOW)
                 continue
             continue_flag = False
         except GeniOAuthError as goae:
-            LOGGER.error('Geni oauth error - %s', goae)
+            oauth_refreshes += 1
+            LOGGER.error('Geni oauth error - %s (refresh %d)', goae, oauth_refreshes)
+            if oauth_refreshes > 3:
+                raise RuntimeError('Geni keeps rejecting the login even after refreshing '
+                                   'it: %s' % goae)
             token_text = get_refreshed_token(refresh_token)
-            LOGGER.debug('get_refreshed_token returned: %s', token_text)
-            token_response = json.loads(token_text)
+            try:
+                token_response = json.loads(token_text)
+            except ValueError:
+                token_response = {}
+            if not token_response.get('access_token'):
+                # Used to die here with a bare KeyError and no explanation.
+                raise RuntimeError('Geni refused to refresh the login (the stored '
+                                   'refresh token is no longer valid -- log in to '
+                                   'GFDC once to store a fresh one): %s'
+                                   % (token_response.get('error_description')
+                                      or token_response.get('error') or token_text[:200]))
             access_token = new_access_token = token_response['access_token']
-            refresh_token = new_refresh_token = token_response['refresh_token']
+            refresh_token = new_refresh_token = token_response.get('refresh_token', refresh_token)
             payload = {'access_token':new_access_token}
-        except:     #Catch all errors
-            LOGGER.exception('Geni api connection error...retrying: ')
-            time.sleep(5)
+        except RuntimeError:
+            raise
+        except Exception as exc:     # network trouble, odd responses
+            other_errors += 1
+            if other_errors > max_other_errors:
+                raise RuntimeError('Geni API kept failing for profile %s (%d tries); '
+                                   'last error: %s: %s' % (profile_id, other_errors,
+                                                          type(exc).__name__, exc))
+            wait = min(120, 5 * (2 ** min(other_errors - 1, 5)))
+            LOGGER.warning('Geni api connection error for %s (%d/%d), retrying in %ds: %s: %s',
+                           profile_id, other_errors, max_other_errors, wait,
+                           type(exc).__name__, exc)
+            time.sleep(wait)
     #print profile_response.text
 
     profile_object['access_token'] = new_access_token if new_access_token != None else access_token

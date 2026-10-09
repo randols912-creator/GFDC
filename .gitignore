@@ -3,3 +3,4 @@ __pycache__/
 .DS_Store
 setenv.sh
 .python-version
+old_versions/

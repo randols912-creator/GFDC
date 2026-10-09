@@ -282,67 +282,148 @@ def get_step_profiles(count, visited_set, profile_id, local_session):
     return {'step':current_step, 'profiles':unique_count, 'total':local_session['totalProfiles']}
 
 def create_background_job(params):
-    """Builds long running job for more than 4 step requests"""
+    """Long-running job for 4+ step requests (guest calculations from the web
+    UI, and the scheduled Top 50 refresh).
+
+    October 2026 changes, all aimed at walks that never finished:
+      * One loop for both the "my profile" and "other profile" cases (they
+        were two copies of the same code).
+      * Scheduled-refresh jobs (params['persist_tokens']) save every rotated
+        Geni token pair back to geni_oauth, so the next run starts from a
+        pair Geni still honours, and checkpoint the walk to Redis
+        (walk_checkpoint) so a dyno restart or a failure resumes where it
+        stopped instead of starting again at step 1.
+      * Any failure emails the job's recipient with the reason, instead of
+        the walk simply going quiet.
+    Guest jobs keep their old behaviour: their tokens are theirs, never
+    stored, and nothing re-enqueues them, so they are not checkpointed.
+    """
     global LOGGER
     if LOGGER == None:
         LOGGER = logging.getLogger()
+    import walk_checkpoint
     LOGGER.debug("create_background_job")
     data = {}
     local_session = {}
     steps = []
     visited_set = set()
-    other_id = params.get('other_id', '')
-    step_count = params['step_count']
+    other_id = params.get('other_id', '') or None
+    step_count = int(params['step_count'])
     include_in_top50 = params['includeInTop50']
-    LOGGER.debug('create_background_job step_count: %s', step_count)
-    if other_id == '':
-        for step in range(0, int(step_count)):
-            step_data = get_step_profiles_thread(params['access_token'], params['refresh_token'], step, visited_set, None, local_session)
-            params['access_token'] = step_data['access_token']
-            params['refresh_token'] = step_data['refresh_token']
+    persist = bool(params.get('persist_tokens'))
+    use_ckpt = persist and bool(other_id)
+    tokens = {'access': params['access_token'], 'refresh': params['refresh_token'],
+              'saved': (params['access_token'], params['refresh_token'])}
+    LOGGER.info('create_background_job: %s, %d steps%s', other_id or 'own profile',
+                step_count, ' (scheduled refresh)' if persist else '')
+
+    def keep_tokens(access, refresh):
+        tokens['access'], tokens['refresh'] = access, refresh
+        if persist and access and refresh and (access, refresh) != tokens['saved']:
+            gfdc_refresh.save_oauth(access, refresh)
+            tokens['saved'] = (access, refresh)
+
+    start_step, resume = 0, None
+    if use_ckpt:
+        state = walk_checkpoint.load(other_id, step_count)
+        meta = state['meta'] if state else {}
+        if state and int(meta.get('completed_steps') or 0) >= 1 \
+                and state['layer_frontier'] is not None:
+            for k in ('loginProfileId', 'stepUserLink', 'guid', 'stepProfileName',
+                      'totalProfiles', 'current_step'):
+                if k in meta:
+                    local_session[k] = meta[k]
+            local_session['layer_prev'] = state['layer_prev'] or set()
+            local_session['layer_frontier'] = state['layer_frontier']
+            steps = list(meta.get('steps') or [])
+            start_step = int(meta['completed_steps'])
+            if state['new_layer'] is not None and meta.get('pos'):
+                resume = (int(meta['pos']), state['new_layer'],
+                          int(meta.get('unique_count') or 0))
+            LOGGER.info('RESUMING %s from checkpoint: %d of %d steps done%s',
+                        meta.get('stepProfileName'), start_step, step_count,
+                        (', %d profiles into step %d' % (resume[0], start_step + 1))
+                        if resume else '')
+        elif state:
+            walk_checkpoint.clear(other_id, step_count)
+
+    def checkpoint_meta(completed, pos=None, unique_count=None):
+        meta = {k: local_session.get(k) for k in
+                ('loginProfileId', 'stepUserLink', 'guid', 'stepProfileName',
+                 'totalProfiles', 'current_step')}
+        meta.update({'completed_steps': completed, 'steps': steps,
+                     'pos': pos, 'unique_count': unique_count})
+        return meta
+
+    def make_progress(step):
+        def progress(pos, new_layer, unique_count, access, refresh):
+            keep_tokens(access, refresh)
+            walk_checkpoint.save(other_id, step_count, {
+                'meta': checkpoint_meta(step, pos, unique_count),
+                'layer_prev': local_session.get('layer_prev'),
+                'layer_frontier': local_session.get('layer_frontier'),
+                'new_layer': new_layer})
+        return progress
+
+    step = start_step
+    try:
+        for step in range(start_step, step_count):
+            step_data = get_step_profiles_thread(
+                tokens['access'], tokens['refresh'], step, visited_set, other_id,
+                local_session,
+                progress=make_progress(step) if (use_ckpt and step > 0) else None,
+                resume=resume if step == start_step else None)
+            keep_tokens(step_data['access_token'], step_data['refresh_token'])
             if include_in_top50 == 'on':
                 save_geni_profile(
                     step_data,
                     local_session['stepProfileName'],
                     local_session['guid'],
                     local_session['stepUserLink'])
-            steps.append(step_data)
-            LOGGER.debug('Calculated logged in profile %s counts for step %s', local_session['guid'], str(step + 1))
+            # Tokens stay out of the step records (they go into checkpoints
+            # and emails).
+            steps.append({'step': step_data['step'], 'profiles': step_data['profiles'],
+                          'total': step_data['total']})
+            LOGGER.info('Calculated %s counts for step %s: %s total',
+                        local_session.get('stepProfileName'), step + 1, step_data['total'])
+            if use_ckpt and step + 1 < step_count:
+                walk_checkpoint.save(other_id, step_count, {
+                    'meta': checkpoint_meta(step + 1),
+                    'layer_prev': local_session.get('layer_prev'),
+                    'layer_frontier': local_session.get('layer_frontier'),
+                    'new_layer': None})
 
             #Send Email after each step
             data['steps'] = steps
-            data['profile_id'] = local_session['loginProfileId']
+            data['profile_id'] = other_id or local_session['loginProfileId']
             data['geniLink'] = local_session['stepUserLink']
             data['guid'] = local_session['guid']
             data['profileName'] = local_session['stepProfileName']
-            data['remainingSteps'] = str(int(step_count) - int(step) - 1)
+            data['remainingSteps'] = str(step_count - step - 1)
             try:
                 sendEmail(params['email'], data)
             except Exception as mail_err:
                 LOGGER.error('email send failed (job continues): %s', mail_err)
-    else:
-        for step in range(0, int(step_count)):
-            step_data = get_step_profiles_thread(params['access_token'], params['refresh_token'], step, visited_set, params['other_id'], local_session)
-            params['access_token'] = step_data['access_token']
-            params['refresh_token'] = step_data['refresh_token']
-            if include_in_top50 == 'on':
-                save_geni_profile(
-                    step_data,
-                    local_session['stepProfileName'],
-                    local_session['guid'],
-                    local_session['stepUserLink'])
-            steps.append(step_data)
-            LOGGER.debug('Calculated logged in profile %s counts for step %s', local_session['guid'], str(step + 1))
-            data['steps'] = steps
-            data['profile_id'] = params['other_id']
-            data['geniLink'] = local_session['stepUserLink']
-            data['guid'] = local_session['guid']
-            data['profileName'] = local_session['stepProfileName']
-            data['remainingSteps'] = str(int(step_count) - int(step) - 1)
-            try:
-                sendEmail(params['email'], data)
-            except Exception as mail_err:
-                LOGGER.error('email send failed (job continues): %s', mail_err)
+    except Exception as exc:
+        LOGGER.exception('create_background_job FAILED at step %d for %s',
+                         step + 1, local_session.get('stepProfileName') or other_id)
+        try:
+            from mail import send_alert
+            send_alert(params.get('email'),
+                       'GFDC walk stopped: %s' % (local_session.get('stepProfileName') or other_id),
+                       'The GFDC background job for %s stopped during step %d of %d.\n\n'
+                       'Reason: %s: %s\n\n%s' % (
+                           local_session.get('stepProfileName') or other_id,
+                           step + 1, step_count, type(exc).__name__, exc,
+                           'Progress is saved; the next scheduled run resumes from it.'
+                           if use_ckpt else
+                           'Completed steps were saved; the rest was not counted.'))
+        except Exception:
+            LOGGER.exception('could not send the failure email')
+        raise
+
+    if use_ckpt:
+        walk_checkpoint.clear(other_id, step_count)
 
     data['steps'] = steps
     data['geniLink'] = local_session['stepUserLink']
@@ -354,7 +435,7 @@ def create_background_job(params):
     # the Top 50, since that's the only place claimed/unclaimed is shown.
     if include_in_top50 == 'on' and local_session.get('guid'):
         try:
-            claim = fetch_claimed(params['access_token'], local_session['guid'])
+            claim = fetch_claimed(tokens['access'], local_session['guid'])
             if claim is not None:
                 gfdc_refresh.stamp_claimed(local_session['guid'], claim)
                 LOGGER.info('create_background_job: %s is %s',
@@ -363,12 +444,22 @@ def create_background_job(params):
             LOGGER.exception('create_background_job: claimed-status check failed '
                              '(counts are still saved; a later backfill run will catch it)')
 
-def get_step_profiles_thread(access_token, refresh_token, count, visited_set, profile_id, local_session):
-    """Get all profiles for a given step when running as a background job"""
+def get_step_profiles_thread(access_token, refresh_token, count, visited_set, profile_id, local_session,
+                             progress=None, resume=None):
+    """Get all profiles for a given step when running as a background job.
+
+    progress: optional callback(pos, new_layer, unique_count, access_token,
+      refresh_token), called every walk_checkpoint.SAVE_EVERY_SECONDS while
+      a step is being expanded, so the caller can checkpoint mid-step.
+    resume: optional (pos, new_layer, unique_count) from such a checkpoint;
+      expansion restarts at that position of the frontier.
+    When either is given the frontier is walked in sorted order, so a
+    position means the same thing after a restart. Without them the walk is
+    exactly as before (rescan_top20 and guest jobs)."""
     global LOGGER
     if LOGGER == None:
         LOGGER = logging.getLogger()
-    LOGGER.debug("get_step_profiles_thread count=%s, access_token=%s, profile_id=%s", str(count), access_token, profile_id)
+    LOGGER.debug("get_step_profiles_thread count=%s, profile_id=%s", str(count), profile_id)
     current_step = count
     unique_count = 0
     # Memory-bounded de-duplication (rolling layers).
@@ -382,7 +473,7 @@ def get_step_profiles_thread(access_token, refresh_token, count, visited_set, pr
         return int(pid) if (isinstance(pid, str) and pid.isdigit()) else pid
     if current_step == 0:
         profile_data = get_profile_details(access_token, refresh_token, profile_id, current_step)
-        if profile_data['status'] == 'SUCCESS':
+        if profile_data.get('status') == 'SUCCESS':
             local_session['loginProfileId'] = profile_data['id']
             local_session['stepUserLink'] = profile_data['geniLink']
             local_session['guid'] = profile_data['guid']
@@ -402,14 +493,32 @@ def get_step_profiles_thread(access_token, refresh_token, count, visited_set, pr
             local_session['layer_prev'] = prev_layer
             local_session['layer_frontier'] = frontier
             local_session['totalProfiles'] = unique_count
+        else:
+            # Used to fall through and die later with a bare KeyError.
+            raise RuntimeError('Geni would not return the starting profile %s (status %r)'
+                               % (profile_id, profile_data.get('status')))
     else:
         prev_layer = local_session['layer_prev']          # step n-2
         frontier = local_session['layer_frontier']        # step n-1 (expand these)
         new_layer = set()                                 # step n (being built)
-        for node_key in frontier:
+        start = 0
+        if progress is None and resume is None:
+            sequence = frontier
+        else:
+            sequence = sorted(frontier, key=str)
+            if resume is not None:
+                start, new_layer, unique_count = resume[0], set(resume[1]), resume[2]
+                sequence = sequence[start:]
+        import time as _time
+        try:
+            from walk_checkpoint import SAVE_EVERY_SECONDS
+        except Exception:
+            SAVE_EVERY_SECONDS = 600
+        last_save = _time.monotonic()
+        for pos, node_key in enumerate(sequence, start):
             fetch_id = str(node_key) if isinstance(node_key, int) else node_key
             profile_data = get_profile_details(access_token, refresh_token, fetch_id, current_step)
-            if profile_data['status'] == 'SUCCESS':
+            if profile_data.get('status') == 'SUCCESS':
                 #Got profile data, process each relation - refresh tokens
                 access_token = profile_data['access_token']
                 refresh_token = profile_data['refresh_token']
@@ -421,7 +530,17 @@ def get_step_profiles_thread(access_token, refresh_token, count, visited_set, pr
                     else:
                         new_layer.add(nkey)
                         unique_count = unique_count + 1
+            else:
+                # Same behaviour as before (an unreadable profile contributes
+                # nothing), but no longer silent.
+                LOGGER.warning('step %d: skipping profile %s (status %r)',
+                               current_step + 1, fetch_id, profile_data.get('status'))
+                access_token = profile_data.get('access_token') or access_token
+                refresh_token = profile_data.get('refresh_token') or refresh_token
             del profile_data
+            if progress is not None and _time.monotonic() - last_save >= SAVE_EVERY_SECONDS:
+                progress(pos + 1, new_layer, unique_count, access_token, refresh_token)
+                last_save = _time.monotonic()
         # roll forward one step: n-2 <- n-1, n-1 <- n; the old n-2 is released
         local_session['layer_prev'] = frontier
         local_session['layer_frontier'] = new_layer

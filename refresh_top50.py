@@ -26,6 +26,7 @@ order of six to seven weeks, which is why the ordering is stalest-first.
 """
 import os
 import sys
+import json
 import logging
 import argparse
 
@@ -37,7 +38,8 @@ LOGGER = logging.getLogger('refresh_top50')
 # gives us the same rate-limit-aware Geni client the web path uses.
 import app as gfdc_app
 import gfdc_refresh
-from geni_client import get_other_profile
+from geni_client import get_other_profile, get_refreshed_token
+import walk_checkpoint
 
 STEP_COUNT = os.getenv('GFDC_REFRESH_STEPS', '10')
 # 2026-09-11: no longer falls back to GENI_FROM_ADDR (the outgoing "from"
@@ -119,29 +121,103 @@ def _queues():
     return out or [gfdc_app.Q]
 
 
+def _running_jobs(queues=None):
+    """Jobs a LIVE worker is executing right now, as (worker name, job).
+
+    rq's StartedJobRegistry is not used for this any more: when a dyno is
+    restarted mid-walk (Heroku does that daily, and on every deploy) the
+    killed job stays listed as "started" until its timeout -- 14 days for a
+    refresh -- so the registry kept reporting a walk that no longer existed
+    and every scheduled run politely did nothing. A worker's own heartbeat
+    expires within minutes of it dying, so this only counts real work."""
+    from rq import Worker
+    out = []
+    try:
+        workers = Worker.all(connection=gfdc_app.CONN) if queues is None else \
+            [w for q in queues for w in Worker.all(queue=q)]
+        seen = set()
+        for w in workers:
+            if w.name in seen:
+                continue
+            seen.add(w.name)
+            job = w.get_current_job()
+            if job is not None:
+                out.append((w.name, job))
+    except Exception as exc:
+        LOGGER.warning('could not inspect workers (%s); assuming busy', exc)
+        out.append(('?', None))
+    return out
+
+
 def queue_busy():
-    """True if anything is pending or running on ANY queue.
+    """True if anything is pending on any queue or running on any worker.
 
     Deliberately conservative: a user's calculation may sit on `default` while
     this checks, and starting alongside it would put both through one worker
     and one Geni rate limit. Skipping costs a day; interfering costs someone
     else's run.
     """
-    from rq.registry import StartedJobRegistry
-    pending = running = 0
+    pending = 0
     try:
         for q in _queues():
             pending += q.count
-            try:
-                running += StartedJobRegistry(queue=q).count
-            except Exception as exc:
-                LOGGER.debug('no started registry for %s (%s)', q.name, exc)
     except Exception as exc:
         LOGGER.warning('could not read the queues (%s); assuming busy', exc)
         return True
+    running = len(_running_jobs())
     LOGGER.info('queues (high/default/low): %d pending, %d running',
                 pending, running)
     return bool(pending or running)
+
+
+def refresh_in_progress(queue):
+    """(True, why) if a refresh is already waiting on, or running from, the
+    refresh queue. Checked on every run whatever GFDC_REFRESH_REQUIRE_IDLE
+    says: without it, a daily (or hourly) Scheduler kept queueing another
+    walk of the same stalest profile behind the one still running."""
+    try:
+        if queue.count:
+            return True, '%d refresh job(s) already queued on %r' % (queue.count, queue.name)
+    except Exception as exc:
+        return True, 'could not read the %r queue (%s)' % (queue.name, exc)
+    running = _running_jobs([queue])
+    if running:
+        name, job = running[0]
+        return True, 'worker %s is still running %s' % (name, job.id if job else 'a job')
+    return False, ''
+
+
+def fresh_tokens():
+    """(access, refresh) to start a walk with, or (None, reason).
+
+    Refreshes the stored pair first and stores the result, the same way
+    rescan_top20 does, so a pair that has sat unused for days still works
+    (Geni access tokens last 24 hours). Falls back to the stored access token
+    if Geni will not refresh, since it may still be valid."""
+    access_token, refresh_token = gfdc_refresh.load_oauth()
+    if not refresh_token:
+        return None, 'No stored Geni tokens. Log in to GFDC once in a browser.'
+    try:
+        resp = json.loads(get_refreshed_token(refresh_token))
+    except Exception as exc:
+        resp = {'error': str(exc)}
+    if resp.get('access_token'):
+        new_refresh = resp.get('refresh_token', refresh_token)
+        gfdc_refresh.save_oauth(resp['access_token'], new_refresh)
+        LOGGER.info('Refreshed and stored the Geni login.')
+        return resp['access_token'], new_refresh
+    LOGGER.warning('Geni would not refresh the stored login (%s); trying the '
+                   'stored access token as-is.', resp.get('error_description')
+                   or resp.get('error') or resp)
+    return access_token, refresh_token
+
+
+def alert(subject, text):
+    try:
+        from mail import send_alert
+        send_alert(NOTIFY, subject, text)
+    except Exception:
+        LOGGER.exception('could not send alert')
 
 
 def main():
@@ -162,13 +238,32 @@ def main():
         LOGGER.info('GFDC_REFRESH_REQUIRE_IDLE=0 -- running alongside whatever '
                     'else is queued (dedicated refresher dyno assumed).')
 
-    rows = gfdc_refresh.stalest_top50()
+    from rq import Queue, Worker
+    queue = Queue(REFRESH_QUEUE, connection=gfdc_app.CONN)
+    if not args.force:
+        busy, why = refresh_in_progress(queue)
+        if busy:
+            LOGGER.info('A refresh is already in progress (%s) -- nothing to do.', why)
+            return 0
+
+    # A walk that was interrupted (dyno restart, failure) left a checkpoint;
+    # finish it before starting anything new, or the half-done work is wasted.
+    pending = walk_checkpoint.in_progress(STEP_COUNT)
+    resume_pick = None
+    if pending:
+        p = pending[0]
+        resume_pick = {'guid': p.get('guid'), 'name': p.get('name'),
+                       'profiles': None, 'computedAt': None}
+        LOGGER.info('Interrupted walk found for %s (%s of %s steps done) -- resuming it.',
+                    p.get('name'), p.get('completed_steps'), STEP_COUNT)
+
+    rows = [resume_pick] if resume_pick and resume_pick['guid'] else gfdc_refresh.stalest_top50()
     if not rows:
         LOGGER.error('No Top 50 rows at step %s -- is geni_profiles populated?',
                      gfdc_refresh.TOP50_STEP)
         return 1
 
-    if MAX_PROFILES > 0:
+    if MAX_PROFILES > 0 and not resume_pick:
         too_big = [r for r in rows if (r['profiles'] or 0) > MAX_PROFILES]
         rows = [r for r in rows if (r['profiles'] or 0) <= MAX_PROFILES]
         if too_big:
@@ -181,7 +276,7 @@ def main():
                            'recount the giants by hand.')
             return 0
 
-    if MIN_AGE_DAYS > 0:
+    if MIN_AGE_DAYS > 0 and not resume_pick:
         from datetime import datetime, timedelta, timezone
         # NAIVE UTC deliberately. MySQL hands back computedAt as a naive
         # datetime, and comparing naive with timezone-aware raises TypeError --
@@ -219,10 +314,9 @@ def main():
         LOGGER.info('--dry-run: nothing enqueued.')
         return 0
 
-    access_token, refresh_token = gfdc_refresh.load_oauth()
+    access_token, refresh_token = fresh_tokens()
     if not access_token:
-        LOGGER.error('No stored Geni tokens. Log in to GFDC once in a browser '
-                     '(that stores them), then this will run unattended.')
+        LOGGER.error(refresh_token)
         return 1
 
     # Same two-step the web UI performs: the table stores the guid, but
@@ -238,6 +332,10 @@ def main():
         LOGGER.error('Geni returned no id for guid %s (access denied, or the '
                      'stored token has expired -- log in once to refresh it)',
                      pick['guid'])
+        alert('GFDC refresh could not start',
+              'The scheduled GFDC refresh could not read %s from Geni with the '
+              'stored login, so nothing was counted. Logging in to GFDC once in '
+              'a browser stores a fresh login.' % (pick['name'] or pick['guid']))
         return 1
 
     params = {
@@ -247,9 +345,10 @@ def main():
         'other_id': profile_id,
         'includeInTop50': 'on',      # so each step's count is written back
         'step_count': STEP_COUNT,
+        # Scheduled walks keep the rotated Geni tokens in geni_oauth and
+        # checkpoint themselves so an interrupted walk resumes (app.py).
+        'persist_tokens': True,
     }
-    from rq import Queue, Worker
-    queue = Queue(REFRESH_QUEUE, connection=gfdc_app.CONN)
 
     # Refuse to enqueue into a queue nothing serves. With a dedicated
     # `refresher` dyno the refresh lives on its own queue -- which means
