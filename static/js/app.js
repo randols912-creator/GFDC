@@ -236,6 +236,15 @@ var Top50Controller = function($scope,$rootScope, $http){
         callServerGETAPI(httpPromise, getProfilesForStep, me.showProfilesData);
     };
 
+    // The site runs AngularJS 1.1.2, whose templates support neither the
+    // ?: operator nor ng-if -- using either in top50.html (Sep 2026) made the
+    // whole Top 50 page fail to render. Keep template logic in here instead.
+    $scope.statusLabel = function(claimed){
+        if (claimed === 1) { return 'Geni user'; }
+        if (claimed === 0) { return 'Unclaimed'; }
+        return '?';
+    };
+
     $scope.setScope = function(scope){
         $scope.scopeFilter = scope;
         // Re-fetch whatever step is currently showing, in the new scope.

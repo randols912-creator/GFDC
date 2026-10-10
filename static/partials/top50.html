@@ -25,7 +25,7 @@
 	                        <th>Profile Id</th>
 	                        <th>Step</th>
 	                        <th>Profiles</th>
-	                        <th ng-if="scopeFilter=='all'">Status</th>
+	                        <th ng-show="scopeFilter=='all'">Status</th>
 	                    </tr>
 	                </thead>
 	                <tbody>
@@ -34,7 +34,7 @@
 	                        <td><a href='{{i.profileLink}}' style='color: #609' target='_blank'>{{i.profileId}}</a></td>
 	                        <td>{{i.step}}</td>
 	                        <td>{{i.profiles}}</td>
-	                        <td ng-if="scopeFilter=='all'">{{i.claimed === 1 ? 'Geni user' : (i.claimed === 0 ? 'Unclaimed' : '?')}}</td>
+	                        <td ng-show="scopeFilter=='all'">{{statusLabel(i.claimed)}}</td>
 	                    </tr>
 	                </tbody>
 	            </table>
