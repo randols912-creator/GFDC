@@ -5,7 +5,7 @@ pymysql.install_as_MySQLdb()
 
 import peewee as pw
 from peewee import Model, CharField, TextField, \
-    IntegerField, AutoField, DoesNotExist
+    IntegerField, AutoField, DoesNotExist, DateTimeField
 import os, logging
 
 LOGGER = logging.getLogger()
@@ -60,6 +60,10 @@ class GeniProfile(Model):
     # gfdc_refresh.ensure_schema(); declared here too so peewee queries
     # (get_top50_profiles' claimed= filter) know the field exists.
     claimed = IntegerField(null=True)
+    # When this (profile, step) count was last made, UTC. Added by
+    # gfdc_refresh.ensure_schema() in Aug 2026 and stamped on every save;
+    # NULL for counts made before then. Declared here so /top50 can show it.
+    computedAt = DateTimeField(null=True)
 
     class Meta(object):
         """model meta information"""
@@ -223,7 +227,8 @@ def get_top50_profiles(step_count, claimed=None):
                 'profileLink':row.profileLink,
                 'step':row.step,
                 'profiles':row.profiles,
-                'claimed':row.claimed
+                'claimed':row.claimed,
+                'computedAt':row.computedAt.strftime('%Y-%m-%d') if row.computedAt else None
             })
     except DoesNotExist:
         LOGGER.exception("get top 50 error: ")

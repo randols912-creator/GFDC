@@ -26,6 +26,7 @@
 	                        <th>Step</th>
 	                        <th>Profiles</th>
 	                        <th ng-show="scopeFilter=='all'">Status</th>
+	                        <th>Last counted</th>
 	                    </tr>
 	                </thead>
 	                <tbody>
@@ -35,6 +36,7 @@
 	                        <td>{{i.step}}</td>
 	                        <td>{{i.profiles}}</td>
 	                        <td ng-show="scopeFilter=='all'">{{statusLabel(i.claimed)}}</td>
+	                        <td>{{countedLabel(i.computedAt)}}</td>
 	                    </tr>
 	                </tbody>
 	            </table>

@@ -245,6 +245,12 @@ var Top50Controller = function($scope,$rootScope, $http){
         return '?';
     };
 
+    // Dates were only recorded from August 2026 on; older counts have none.
+    $scope.countedLabel = function(computedAt){
+        if (computedAt) { return computedAt; }
+        return 'before Aug 2026';
+    };
+
     $scope.setScope = function(scope){
         $scope.scopeFilter = scope;
         // Re-fetch whatever step is currently showing, in the new scope.
