@@ -236,39 +236,43 @@ def stamp_claimed(guid, claimed):
 
 
 def stalest_top50(step=None, limit=None):
-    """The PUBLISHED Top 50 at `step`, stalest first.
+    """Profiles due for a recount, in the order to do them.
 
-    Two-stage on purpose. `geni_profiles` holds far more rows than the list
-    shows -- 573 at step 10 against a published 50 -- so ranking the whole
-    table by staleness would happily pick something at #400 and spend hours
-    recounting a number nobody can see. The inner query reproduces exactly what
-    /top50 publishes (top N by profile count, same STEP_THRESHOLD the app
-    uses); only then does the outer query order that set by staleness.
+    The pool is what the site publishes: the main Top 50 PLUS the "Geni
+    Users" (claimed) Top 50 -- added Nov 2026 at Randy's request, since most
+    claimed profiles are not in the main list and were never being
+    recounted. Each list is reproduced exactly as /top50 builds it (top N by
+    profile count at this step), merged, and de-duplicated by profileId;
+    rows below the published lists are never picked.
 
-    Un-stamped rows come first, and among them the CHEAPEST (fewest profiles)
-    first. Every row starts un-stamped, so that tiebreak decides the whole
-    first pass through the list: smallest-first clears the backlog quickly and
-    gets real timestamps onto many rows, where biggest-first would spend the
-    opening days on one giant walk. It also avoids redoing the top entries,
-    which schoenberg.com's crawler was still recounting in August 2026. Once
-    rows carry a computedAt the ordering becomes genuinely oldest-first and the
-    tiebreak stops mattering.
+    Order: never-dated rows first, SMALLEST first, so as many profiles as
+    possible get a fresh count quickly and the multi-day giants come last.
+    Once everything has a date, oldest-dated first (smallest first on ties),
+    so each comes round again about MIN_AGE_DAYS after its last count.
+
+    Three plain queries merged in Python rather than one UNION: simpler, and
+    it runs the same on MySQL and on the SQLite used for testing.
     """
     step = TOP50_STEP if step is None else step
     limit = PUBLISHED_LIMIT if limit is None else limit
-    rows = []
+    param = getattr(MY_DB, 'param', '%s')
+    pool = {}
     try:
         MY_DB.connect(reuse_if_open=True)
-        cursor = MY_DB.execute_sql(
-            'SELECT profileId, profileName, profiles, computedAt '
-            'FROM (SELECT profileId, profileName, profiles, computedAt '
-            '      FROM geni_profiles WHERE step = %s '
-            '      ORDER BY profiles DESC LIMIT %s) published '
-            'ORDER BY (computedAt IS NOT NULL), computedAt ASC, '
-            'profiles ASC', (step, limit))
-        for guid, name, profiles, computed_at in cursor.fetchall():
-            rows.append({'guid': guid, 'name': name,
-                         'profiles': profiles, 'computedAt': computed_at})
+        for scope in ('', ' AND claimed = 1'):
+            cursor = MY_DB.execute_sql(
+                'SELECT profileId, profileName, profiles, computedAt '
+                'FROM geni_profiles WHERE step = %s%s '
+                'ORDER BY profiles DESC LIMIT %s' % (param, scope, param),
+                (step, limit))
+            for guid, name, profiles, computed_at in cursor.fetchall():
+                pool[guid] = {'guid': guid, 'name': name,
+                              'profiles': profiles, 'computedAt': computed_at}
     except Exception:
         LOGGER.exception('stalest_top50 failed')
+        return []
+    rows = list(pool.values())
+    rows.sort(key=lambda r: (r['computedAt'] is not None,
+                             r['computedAt'] or datetime.min,
+                             r['profiles'] or 0))
     return rows
