@@ -221,3 +221,58 @@ def in_progress(step_count):
         LOGGER.exception('could not list in-progress walks')
     out.sort(key=lambda m: m.get('saved_at') or 0, reverse=True)
     return out
+
+
+# ------------------------------------------------- repeated-failure skip list
+#
+# Nov 2026: a profile Geni will not serve (e.g. a private claimed profile)
+# failed at step 1 every hour, and because it was the smallest undated row
+# the refresher picked it again every hour -- an error email an hour and no
+# other profile ever counted. Failures are now counted per profile (by guid);
+# after MAX_FAILURES in a row it is skipped for SKIP_DAYS, then tried again.
+# A successful walk clears the count.
+
+MAX_FAILURES = int(os.getenv('GFDC_MAX_FAILURES', '2'))
+SKIP_DAYS = int(os.getenv('GFDC_FAIL_SKIP_DAYS', '30'))
+
+
+def _fail_key(guid):
+    return 'gfdc:walkfail:%s' % guid
+
+
+def record_failure(guid):
+    """Count one more failure for guid; returns the new count (0 if unknown)."""
+    if not guid:
+        return 0
+    try:
+        conn = _conn()
+        n = conn.incr(_fail_key(guid))
+        conn.expire(_fail_key(guid), SKIP_DAYS * 86400)
+        return int(n)
+    except Exception:
+        LOGGER.exception('could not record failure for %s', guid)
+        return 0
+
+
+def failures(guid):
+    if not guid:
+        return 0
+    try:
+        v = _conn().get(_fail_key(guid))
+        return int(v) if v else 0
+    except Exception:
+        LOGGER.exception('could not read failures for %s', guid)
+        return 0
+
+
+def is_skipped(guid):
+    return failures(guid) >= MAX_FAILURES
+
+
+def clear_failures(guid):
+    if not guid:
+        return
+    try:
+        _conn().delete(_fail_key(guid))
+    except Exception:
+        LOGGER.exception('could not clear failures for %s', guid)

@@ -248,7 +248,8 @@ def main():
 
     # A walk that was interrupted (dyno restart, failure) left a checkpoint;
     # finish it before starting anything new, or the half-done work is wasted.
-    pending = walk_checkpoint.in_progress(STEP_COUNT)
+    pending = [p for p in walk_checkpoint.in_progress(STEP_COUNT)
+               if not walk_checkpoint.is_skipped(p.get('guid'))]
     resume_pick = None
     if pending:
         p = pending[0]
@@ -258,6 +259,15 @@ def main():
                     p.get('name'), p.get('completed_steps'), STEP_COUNT)
 
     rows = [resume_pick] if resume_pick and resume_pick['guid'] else gfdc_refresh.stalest_top50()
+    if not resume_pick:
+        # Profiles that keep failing (e.g. private ones Geni will not serve)
+        # are skipped for a while rather than retried every hour.
+        skipped = [r for r in rows if walk_checkpoint.is_skipped(r['guid'])]
+        if skipped:
+            LOGGER.info('skipping %d profile(s) that failed %d+ times in a row: %s',
+                        len(skipped), walk_checkpoint.MAX_FAILURES,
+                        ', '.join((r['name'] or r['guid']) for r in skipped[:5]))
+            rows = [r for r in rows if not walk_checkpoint.is_skipped(r['guid'])]
     if not rows:
         LOGGER.error('No Top 50 rows at step %s -- is geni_profiles populated?',
                      gfdc_refresh.TOP50_STEP)
@@ -332,6 +342,7 @@ def main():
         LOGGER.error('Geni returned no id for guid %s (access denied, or the '
                      'stored token has expired -- log in once to refresh it)',
                      pick['guid'])
+        walk_checkpoint.record_failure(pick['guid'])
         alert('GFDC refresh could not start',
               'The scheduled GFDC refresh could not read %s from Geni with the '
               'stored login, so nothing was counted. Logging in to GFDC once in '
@@ -348,6 +359,7 @@ def main():
         # Scheduled walks keep the rotated Geni tokens in geni_oauth and
         # checkpoint themselves so an interrupted walk resumes (app.py).
         'persist_tokens': True,
+        'guid': pick['guid'],         # for the repeated-failure skip list
     }
 
     # Refuse to enqueue into a queue nothing serves. With a dedicated

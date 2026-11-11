@@ -407,6 +407,25 @@ def create_background_job(params):
     except Exception as exc:
         LOGGER.exception('create_background_job FAILED at step %d for %s',
                          step + 1, local_session.get('stepProfileName') or other_id)
+        # What happens next, said accurately. A failure at step 1 has no
+        # checkpoint to resume from. Scheduled walks count failures per
+        # profile so one Geni will not serve is skipped instead of retried
+        # (and emailed about) every hour.
+        if use_ckpt:
+            # Only a failure to even start counts towards the skip list: a
+            # walk that fails later has a checkpoint and makes progress on
+            # each retry, and a passing Geni outage should not shelve it.
+            fails = walk_checkpoint.record_failure(params.get('guid')) if step == 0 else 0
+            if fails >= walk_checkpoint.MAX_FAILURES:
+                nxt = ('This profile has now failed %d times in a row, so the '
+                       'refresher will skip it for %d days and move on to the '
+                       'next one.' % (fails, walk_checkpoint.SKIP_DAYS))
+            elif step > 0:
+                nxt = 'Progress is saved; the next scheduled run resumes from it.'
+            else:
+                nxt = 'The next scheduled run will try it once more.'
+        else:
+            nxt = 'Completed steps were saved; the rest was not counted.'
         try:
             from mail import send_alert
             send_alert(params.get('email'),
@@ -414,16 +433,14 @@ def create_background_job(params):
                        'The GFDC background job for %s stopped during step %d of %d.\n\n'
                        'Reason: %s: %s\n\n%s' % (
                            local_session.get('stepProfileName') or other_id,
-                           step + 1, step_count, type(exc).__name__, exc,
-                           'Progress is saved; the next scheduled run resumes from it.'
-                           if use_ckpt else
-                           'Completed steps were saved; the rest was not counted.'))
+                           step + 1, step_count, type(exc).__name__, exc, nxt))
         except Exception:
             LOGGER.exception('could not send the failure email')
         raise
 
     if use_ckpt:
         walk_checkpoint.clear(other_id, step_count)
+        walk_checkpoint.clear_failures(params.get('guid'))
 
     data['steps'] = steps
     data['geniLink'] = local_session['stepUserLink']
